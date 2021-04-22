@@ -1,17 +1,3 @@
-<!DOCTYPE HTML>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Main</title>
-  <style>body { padding: 0; margin: 0; }</style>
-</head>
-
-<body>
-
-<pre id="elm"></pre>
-
-<script>
-try {
 (function(scope){
 'use strict';
 
@@ -4372,43 +4358,6 @@ function _Browser_load(url)
 
 
 
-var _Bitwise_and = F2(function(a, b)
-{
-	return a & b;
-});
-
-var _Bitwise_or = F2(function(a, b)
-{
-	return a | b;
-});
-
-var _Bitwise_xor = F2(function(a, b)
-{
-	return a ^ b;
-});
-
-function _Bitwise_complement(a)
-{
-	return ~a;
-};
-
-var _Bitwise_shiftLeftBy = F2(function(offset, a)
-{
-	return a << offset;
-});
-
-var _Bitwise_shiftRightBy = F2(function(offset, a)
-{
-	return a >> offset;
-});
-
-var _Bitwise_shiftRightZfBy = F2(function(offset, a)
-{
-	return a >>> offset;
-});
-
-
-
 function _Time_now(millisToPosix)
 {
 	return _Scheduler_binding(function(callback)
@@ -5241,271 +5190,23 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$document = _Browser_document;
-var $author$project$Main$NewPermutation = function (a) {
-	return {$: 'NewPermutation', a: a};
-};
-var $avh4$elm_color$Color$RgbaSpace = F4(
-	function (a, b, c, d) {
-		return {$: 'RgbaSpace', a: a, b: b, c: c, d: d};
-	});
-var $avh4$elm_color$Color$blue = A4($avh4$elm_color$Color$RgbaSpace, 52 / 255, 101 / 255, 164 / 255, 1.0);
-var $elm$random$Random$Generate = function (a) {
-	return {$: 'Generate', a: a};
-};
-var $elm$random$Random$Seed = F2(
-	function (a, b) {
-		return {$: 'Seed', a: a, b: b};
-	});
-var $elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
-var $elm$random$Random$next = function (_v0) {
-	var state0 = _v0.a;
-	var incr = _v0.b;
-	return A2($elm$random$Random$Seed, ((state0 * 1664525) + incr) >>> 0, incr);
-};
-var $elm$random$Random$initialSeed = function (x) {
-	var _v0 = $elm$random$Random$next(
-		A2($elm$random$Random$Seed, 0, 1013904223));
-	var state1 = _v0.a;
-	var incr = _v0.b;
-	var state2 = (state1 + x) >>> 0;
-	return $elm$random$Random$next(
-		A2($elm$random$Random$Seed, state2, incr));
-};
-var $elm$time$Time$Name = function (a) {
-	return {$: 'Name', a: a};
-};
-var $elm$time$Time$Offset = function (a) {
-	return {$: 'Offset', a: a};
-};
-var $elm$time$Time$Zone = F2(
-	function (a, b) {
-		return {$: 'Zone', a: a, b: b};
-	});
-var $elm$time$Time$customZone = $elm$time$Time$Zone;
-var $elm$time$Time$Posix = function (a) {
-	return {$: 'Posix', a: a};
-};
-var $elm$time$Time$millisToPosix = $elm$time$Time$Posix;
-var $elm$time$Time$now = _Time_now($elm$time$Time$millisToPosix);
-var $elm$time$Time$posixToMillis = function (_v0) {
-	var millis = _v0.a;
-	return millis;
-};
-var $elm$random$Random$init = A2(
-	$elm$core$Task$andThen,
-	function (time) {
-		return $elm$core$Task$succeed(
-			$elm$random$Random$initialSeed(
-				$elm$time$Time$posixToMillis(time)));
-	},
-	$elm$time$Time$now);
-var $elm$random$Random$step = F2(
-	function (_v0, seed) {
-		var generator = _v0.a;
-		return generator(seed);
-	});
-var $elm$random$Random$onEffects = F3(
-	function (router, commands, seed) {
-		if (!commands.b) {
-			return $elm$core$Task$succeed(seed);
-		} else {
-			var generator = commands.a.a;
-			var rest = commands.b;
-			var _v1 = A2($elm$random$Random$step, generator, seed);
-			var value = _v1.a;
-			var newSeed = _v1.b;
-			return A2(
-				$elm$core$Task$andThen,
-				function (_v2) {
-					return A3($elm$random$Random$onEffects, router, rest, newSeed);
-				},
-				A2($elm$core$Platform$sendToApp, router, value));
-		}
-	});
-var $elm$random$Random$onSelfMsg = F3(
-	function (_v0, _v1, seed) {
-		return $elm$core$Task$succeed(seed);
-	});
-var $elm$random$Random$Generator = function (a) {
-	return {$: 'Generator', a: a};
-};
-var $elm$random$Random$map = F2(
-	function (func, _v0) {
-		var genA = _v0.a;
-		return $elm$random$Random$Generator(
-			function (seed0) {
-				var _v1 = genA(seed0);
-				var a = _v1.a;
-				var seed1 = _v1.b;
-				return _Utils_Tuple2(
-					func(a),
-					seed1);
-			});
-	});
-var $elm$random$Random$cmdMap = F2(
-	function (func, _v0) {
-		var generator = _v0.a;
-		return $elm$random$Random$Generate(
-			A2($elm$random$Random$map, func, generator));
-	});
-_Platform_effectManagers['Random'] = _Platform_createManager($elm$random$Random$init, $elm$random$Random$onEffects, $elm$random$Random$onSelfMsg, $elm$random$Random$cmdMap);
-var $elm$random$Random$command = _Platform_leaf('Random');
-var $elm$random$Random$generate = F2(
-	function (tagger, generator) {
-		return $elm$random$Random$command(
-			$elm$random$Random$Generate(
-				A2($elm$random$Random$map, tagger, generator)));
-	});
-var $avh4$elm_color$Color$green = A4($avh4$elm_color$Color$RgbaSpace, 115 / 255, 210 / 255, 22 / 255, 1.0);
-var $elm$core$Basics$negate = function (n) {
-	return -n;
-};
-var $avh4$elm_color$Color$purple = A4($avh4$elm_color$Color$RgbaSpace, 117 / 255, 80 / 255, 123 / 255, 1.0);
-var $avh4$elm_color$Color$red = A4($avh4$elm_color$Color$RgbaSpace, 204 / 255, 0 / 255, 0 / 255, 1.0);
-var $elm$core$Bitwise$and = _Bitwise_and;
-var $elm$core$Bitwise$xor = _Bitwise_xor;
-var $elm$random$Random$peel = function (_v0) {
-	var state = _v0.a;
-	var word = (state ^ (state >>> ((state >>> 28) + 4))) * 277803737;
-	return ((word >>> 22) ^ word) >>> 0;
-};
-var $elm$random$Random$int = F2(
-	function (a, b) {
-		return $elm$random$Random$Generator(
-			function (seed0) {
-				var _v0 = (_Utils_cmp(a, b) < 0) ? _Utils_Tuple2(a, b) : _Utils_Tuple2(b, a);
-				var lo = _v0.a;
-				var hi = _v0.b;
-				var range = (hi - lo) + 1;
-				if (!((range - 1) & range)) {
-					return _Utils_Tuple2(
-						(((range - 1) & $elm$random$Random$peel(seed0)) >>> 0) + lo,
-						$elm$random$Random$next(seed0));
-				} else {
-					var threshhold = (((-range) >>> 0) % range) >>> 0;
-					var accountForBias = function (seed) {
-						accountForBias:
-						while (true) {
-							var x = $elm$random$Random$peel(seed);
-							var seedN = $elm$random$Random$next(seed);
-							if (_Utils_cmp(x, threshhold) < 0) {
-								var $temp$seed = seedN;
-								seed = $temp$seed;
-								continue accountForBias;
-							} else {
-								return _Utils_Tuple2((x % range) + lo, seedN);
-							}
-						}
-					};
-					return accountForBias(seed0);
-				}
-			});
-	});
-var $elm$random$Random$maxInt = 2147483647;
-var $elm$random$Random$minInt = -2147483648;
-var $elm_community$random_extra$Random$List$anyInt = A2($elm$random$Random$int, $elm$random$Random$minInt, $elm$random$Random$maxInt);
-var $elm$random$Random$map3 = F4(
-	function (func, _v0, _v1, _v2) {
-		var genA = _v0.a;
-		var genB = _v1.a;
-		var genC = _v2.a;
-		return $elm$random$Random$Generator(
-			function (seed0) {
-				var _v3 = genA(seed0);
-				var a = _v3.a;
-				var seed1 = _v3.b;
-				var _v4 = genB(seed1);
-				var b = _v4.a;
-				var seed2 = _v4.b;
-				var _v5 = genC(seed2);
-				var c = _v5.a;
-				var seed3 = _v5.b;
-				return _Utils_Tuple2(
-					A3(func, a, b, c),
-					seed3);
-			});
-	});
-var $elm$core$Bitwise$or = _Bitwise_or;
-var $elm$random$Random$independentSeed = $elm$random$Random$Generator(
-	function (seed0) {
-		var makeIndependentSeed = F3(
-			function (state, b, c) {
-				return $elm$random$Random$next(
-					A2($elm$random$Random$Seed, state, (1 | (b ^ c)) >>> 0));
-			});
-		var gen = A2($elm$random$Random$int, 0, 4294967295);
-		return A2(
-			$elm$random$Random$step,
-			A4($elm$random$Random$map3, makeIndependentSeed, gen, gen, gen),
-			seed0);
-	});
-var $elm$core$Tuple$second = function (_v0) {
-	var y = _v0.b;
-	return y;
-};
-var $elm$core$List$sortBy = _List_sortBy;
-var $elm_community$random_extra$Random$List$shuffle = function (list) {
-	return A2(
-		$elm$random$Random$map,
-		function (independentSeed) {
-			return A2(
-				$elm$core$List$map,
-				$elm$core$Tuple$first,
-				A2(
-					$elm$core$List$sortBy,
-					$elm$core$Tuple$second,
-					A3(
-						$elm$core$List$foldl,
-						F2(
-							function (item, _v0) {
-								var acc = _v0.a;
-								var seed = _v0.b;
-								var _v1 = A2($elm$random$Random$step, $elm_community$random_extra$Random$List$anyInt, seed);
-								var tag = _v1.a;
-								var nextSeed = _v1.b;
-								return _Utils_Tuple2(
-									A2(
-										$elm$core$List$cons,
-										_Utils_Tuple2(item, tag),
-										acc),
-									nextSeed);
-							}),
-						_Utils_Tuple2(_List_Nil, independentSeed),
-						list).a));
-		},
-		$elm$random$Random$independentSeed);
-};
-var $avh4$elm_color$Color$yellow = A4($avh4$elm_color$Color$RgbaSpace, 237 / 255, 212 / 255, 0 / 255, 1.0);
+var $elm$core$Platform$Cmd$batch = _Platform_batch;
+var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$Main$init = function (_v0) {
 	return _Utils_Tuple2(
 		{
 			angles: _List_fromArray(
 				[0, 0, 0, 0, 0]),
-			colors: _List_fromArray(
-				[$avh4$elm_color$Color$red, $avh4$elm_color$Color$yellow, $avh4$elm_color$Color$green, $avh4$elm_color$Color$blue, $avh4$elm_color$Color$purple]),
 			lineHovered: $elm$core$Maybe$Nothing,
 			linesClicked: _List_fromArray(
 				[false, false, false, false]),
-			lossCount: 0,
-			permute: $elm$core$Basics$identity,
 			polygonHovered: $elm$core$Maybe$Nothing,
-			pressedKeys: _List_Nil,
-			remainingMoves: -1,
 			sides: _List_fromArray(
-				[4, 5, 6, 7, 8]),
-			winCount: 0
+				[4, 5, 6, 7, 8])
 		},
-		A2(
-			$elm$random$Random$generate,
-			$author$project$Main$NewPermutation,
-			$elm_community$random_extra$Random$List$shuffle(
-				A2($elm$core$List$range, 0, 4))));
-};
-var $author$project$Main$KeyMsg = function (a) {
-	return {$: 'KeyMsg', a: a};
+		$elm$core$Platform$Cmd$none);
 };
 var $author$project$Main$Tick = {$: 'Tick'};
-var $elm$core$Platform$Sub$batch = _Platform_batch;
 var $elm$time$Time$Every = F2(
 	function (a, b) {
 		return {$: 'Every', a: a, b: b};
@@ -5767,6 +5468,17 @@ var $elm$core$Dict$merge = F6(
 			leftovers);
 	});
 var $elm$core$Platform$sendToSelf = _Platform_sendToSelf;
+var $elm$time$Time$Name = function (a) {
+	return {$: 'Name', a: a};
+};
+var $elm$time$Time$Offset = function (a) {
+	return {$: 'Offset', a: a};
+};
+var $elm$time$Time$Zone = F2(
+	function (a, b) {
+		return {$: 'Zone', a: a, b: b};
+	});
+var $elm$time$Time$customZone = $elm$time$Time$Zone;
 var $elm$time$Time$setInterval = _Time_setInterval;
 var $elm$core$Process$spawn = _Scheduler_spawn;
 var $elm$time$Time$spawnHelp = F3(
@@ -5857,6 +5569,11 @@ var $elm$time$Time$onEffects = F3(
 				},
 				killTask));
 	});
+var $elm$time$Time$Posix = function (a) {
+	return {$: 'Posix', a: a};
+};
+var $elm$time$Time$millisToPosix = $elm$time$Time$Posix;
+var $elm$time$Time$now = _Time_now($elm$time$Time$millisToPosix);
 var $elm$time$Time$onSelfMsg = F3(
 	function (router, interval, state) {
 		var _v0 = A2($elm$core$Dict$get, interval, state.taggers);
@@ -5905,1155 +5622,85 @@ var $elm$time$Time$every = F2(
 		return $elm$time$Time$subscription(
 			A2($elm$time$Time$Every, interval, tagger));
 	});
-var $elm$core$Platform$Sub$map = _Platform_map;
-var $ohanhi$keyboard$Keyboard$Down = function (a) {
-	return {$: 'Down', a: a};
-};
-var $ohanhi$keyboard$Keyboard$Up = function (a) {
-	return {$: 'Up', a: a};
-};
-var $ohanhi$keyboard$Keyboard$RawKey = function (a) {
-	return {$: 'RawKey', a: a};
-};
-var $elm$json$Json$Decode$field = _Json_decodeField;
-var $elm$json$Json$Decode$string = _Json_decodeString;
-var $ohanhi$keyboard$Keyboard$eventKeyDecoder = A2(
-	$elm$json$Json$Decode$field,
-	'key',
-	A2($elm$json$Json$Decode$map, $ohanhi$keyboard$Keyboard$RawKey, $elm$json$Json$Decode$string));
-var $elm$browser$Browser$Events$Document = {$: 'Document'};
-var $elm$browser$Browser$Events$MySub = F3(
-	function (a, b, c) {
-		return {$: 'MySub', a: a, b: b, c: c};
-	});
-var $elm$browser$Browser$Events$State = F2(
-	function (subs, pids) {
-		return {pids: pids, subs: subs};
-	});
-var $elm$browser$Browser$Events$init = $elm$core$Task$succeed(
-	A2($elm$browser$Browser$Events$State, _List_Nil, $elm$core$Dict$empty));
-var $elm$browser$Browser$Events$nodeToKey = function (node) {
-	if (node.$ === 'Document') {
-		return 'd_';
-	} else {
-		return 'w_';
-	}
-};
-var $elm$browser$Browser$Events$addKey = function (sub) {
-	var node = sub.a;
-	var name = sub.b;
-	return _Utils_Tuple2(
-		_Utils_ap(
-			$elm$browser$Browser$Events$nodeToKey(node),
-			name),
-		sub);
-};
-var $elm$core$Dict$fromList = function (assocs) {
-	return A3(
-		$elm$core$List$foldl,
-		F2(
-			function (_v0, dict) {
-				var key = _v0.a;
-				var value = _v0.b;
-				return A3($elm$core$Dict$insert, key, value, dict);
-			}),
-		$elm$core$Dict$empty,
-		assocs);
-};
-var $elm$browser$Browser$Events$Event = F2(
-	function (key, event) {
-		return {event: event, key: key};
-	});
-var $elm$browser$Browser$Events$spawn = F3(
-	function (router, key, _v0) {
-		var node = _v0.a;
-		var name = _v0.b;
-		var actualNode = function () {
-			if (node.$ === 'Document') {
-				return _Browser_doc;
-			} else {
-				return _Browser_window;
-			}
-		}();
-		return A2(
-			$elm$core$Task$map,
-			function (value) {
-				return _Utils_Tuple2(key, value);
-			},
-			A3(
-				_Browser_on,
-				actualNode,
-				name,
-				function (event) {
-					return A2(
-						$elm$core$Platform$sendToSelf,
-						router,
-						A2($elm$browser$Browser$Events$Event, key, event));
-				}));
-	});
-var $elm$core$Dict$union = F2(
-	function (t1, t2) {
-		return A3($elm$core$Dict$foldl, $elm$core$Dict$insert, t2, t1);
-	});
-var $elm$browser$Browser$Events$onEffects = F3(
-	function (router, subs, state) {
-		var stepRight = F3(
-			function (key, sub, _v6) {
-				var deads = _v6.a;
-				var lives = _v6.b;
-				var news = _v6.c;
-				return _Utils_Tuple3(
-					deads,
-					lives,
-					A2(
-						$elm$core$List$cons,
-						A3($elm$browser$Browser$Events$spawn, router, key, sub),
-						news));
-			});
-		var stepLeft = F3(
-			function (_v4, pid, _v5) {
-				var deads = _v5.a;
-				var lives = _v5.b;
-				var news = _v5.c;
-				return _Utils_Tuple3(
-					A2($elm$core$List$cons, pid, deads),
-					lives,
-					news);
-			});
-		var stepBoth = F4(
-			function (key, pid, _v2, _v3) {
-				var deads = _v3.a;
-				var lives = _v3.b;
-				var news = _v3.c;
-				return _Utils_Tuple3(
-					deads,
-					A3($elm$core$Dict$insert, key, pid, lives),
-					news);
-			});
-		var newSubs = A2($elm$core$List$map, $elm$browser$Browser$Events$addKey, subs);
-		var _v0 = A6(
-			$elm$core$Dict$merge,
-			stepLeft,
-			stepBoth,
-			stepRight,
-			state.pids,
-			$elm$core$Dict$fromList(newSubs),
-			_Utils_Tuple3(_List_Nil, $elm$core$Dict$empty, _List_Nil));
-		var deadPids = _v0.a;
-		var livePids = _v0.b;
-		var makeNewPids = _v0.c;
-		return A2(
-			$elm$core$Task$andThen,
-			function (pids) {
-				return $elm$core$Task$succeed(
-					A2(
-						$elm$browser$Browser$Events$State,
-						newSubs,
-						A2(
-							$elm$core$Dict$union,
-							livePids,
-							$elm$core$Dict$fromList(pids))));
-			},
-			A2(
-				$elm$core$Task$andThen,
-				function (_v1) {
-					return $elm$core$Task$sequence(makeNewPids);
-				},
-				$elm$core$Task$sequence(
-					A2($elm$core$List$map, $elm$core$Process$kill, deadPids))));
-	});
-var $elm$core$List$maybeCons = F3(
-	function (f, mx, xs) {
-		var _v0 = f(mx);
-		if (_v0.$ === 'Just') {
-			var x = _v0.a;
-			return A2($elm$core$List$cons, x, xs);
-		} else {
-			return xs;
-		}
-	});
-var $elm$core$List$filterMap = F2(
-	function (f, xs) {
-		return A3(
-			$elm$core$List$foldr,
-			$elm$core$List$maybeCons(f),
-			_List_Nil,
-			xs);
-	});
-var $elm$browser$Browser$Events$onSelfMsg = F3(
-	function (router, _v0, state) {
-		var key = _v0.key;
-		var event = _v0.event;
-		var toMessage = function (_v2) {
-			var subKey = _v2.a;
-			var _v3 = _v2.b;
-			var node = _v3.a;
-			var name = _v3.b;
-			var decoder = _v3.c;
-			return _Utils_eq(subKey, key) ? A2(_Browser_decodeEvent, decoder, event) : $elm$core$Maybe$Nothing;
-		};
-		var messages = A2($elm$core$List$filterMap, toMessage, state.subs);
-		return A2(
-			$elm$core$Task$andThen,
-			function (_v1) {
-				return $elm$core$Task$succeed(state);
-			},
-			$elm$core$Task$sequence(
-				A2(
-					$elm$core$List$map,
-					$elm$core$Platform$sendToApp(router),
-					messages)));
-	});
-var $elm$browser$Browser$Events$subMap = F2(
-	function (func, _v0) {
-		var node = _v0.a;
-		var name = _v0.b;
-		var decoder = _v0.c;
-		return A3(
-			$elm$browser$Browser$Events$MySub,
-			node,
-			name,
-			A2($elm$json$Json$Decode$map, func, decoder));
-	});
-_Platform_effectManagers['Browser.Events'] = _Platform_createManager($elm$browser$Browser$Events$init, $elm$browser$Browser$Events$onEffects, $elm$browser$Browser$Events$onSelfMsg, 0, $elm$browser$Browser$Events$subMap);
-var $elm$browser$Browser$Events$subscription = _Platform_leaf('Browser.Events');
-var $elm$browser$Browser$Events$on = F3(
-	function (node, name, decoder) {
-		return $elm$browser$Browser$Events$subscription(
-			A3($elm$browser$Browser$Events$MySub, node, name, decoder));
-	});
-var $elm$browser$Browser$Events$onKeyDown = A2($elm$browser$Browser$Events$on, $elm$browser$Browser$Events$Document, 'keydown');
-var $ohanhi$keyboard$Keyboard$downs = function (toMsg) {
-	return $elm$browser$Browser$Events$onKeyDown(
-		A2($elm$json$Json$Decode$map, toMsg, $ohanhi$keyboard$Keyboard$eventKeyDecoder));
-};
-var $elm$browser$Browser$Events$onKeyUp = A2($elm$browser$Browser$Events$on, $elm$browser$Browser$Events$Document, 'keyup');
-var $ohanhi$keyboard$Keyboard$ups = function (toMsg) {
-	return $elm$browser$Browser$Events$onKeyUp(
-		A2($elm$json$Json$Decode$map, toMsg, $ohanhi$keyboard$Keyboard$eventKeyDecoder));
-};
-var $ohanhi$keyboard$Keyboard$subscriptions = $elm$core$Platform$Sub$batch(
-	_List_fromArray(
-		[
-			$ohanhi$keyboard$Keyboard$downs($ohanhi$keyboard$Keyboard$Down),
-			$ohanhi$keyboard$Keyboard$ups($ohanhi$keyboard$Keyboard$Up)
-		]));
 var $author$project$Main$subscriptions = function (model) {
-	return $elm$core$Platform$Sub$batch(
-		_List_fromArray(
-			[
-				A2(
-				$elm$time$Time$every,
-				10,
-				function (_v0) {
-					return $author$project$Main$Tick;
-				}),
-				A2($elm$core$Platform$Sub$map, $author$project$Main$KeyMsg, $ohanhi$keyboard$Keyboard$subscriptions)
-			]));
-};
-var $author$project$Main$Move = {$: 'Move'};
-var $author$project$Main$NewGame = {$: 'NewGame'};
-var $ohanhi$keyboard$Keyboard$Spacebar = {$: 'Spacebar'};
-var $turboMaCk$queue$Queue$Queue = F2(
-	function (a, b) {
-		return {$: 'Queue', a: a, b: b};
-	});
-var $turboMaCk$queue$Queue$queue = F2(
-	function (fl, rl) {
-		if (!fl.b) {
-			return A2(
-				$turboMaCk$queue$Queue$Queue,
-				$elm$core$List$reverse(rl),
-				_List_Nil);
-		} else {
-			return A2($turboMaCk$queue$Queue$Queue, fl, rl);
-		}
-	});
-var $turboMaCk$queue$Queue$dequeue = function (_v0) {
-	var fl = _v0.a;
-	var rl = _v0.b;
-	if (!fl.b) {
-		return _Utils_Tuple2(
-			$elm$core$Maybe$Nothing,
-			A2($turboMaCk$queue$Queue$Queue, _List_Nil, _List_Nil));
-	} else {
-		var head = fl.a;
-		var tail = fl.b;
-		return _Utils_Tuple2(
-			$elm$core$Maybe$Just(head),
-			A2($turboMaCk$queue$Queue$queue, tail, rl));
-	}
-};
-var $turboMaCk$queue$Queue$empty = A2($turboMaCk$queue$Queue$Queue, _List_Nil, _List_Nil);
-var $turboMaCk$queue$Queue$enqueue = F2(
-	function (a, _v0) {
-		var fl = _v0.a;
-		var rl = _v0.b;
-		return A2(
-			$turboMaCk$queue$Queue$queue,
-			fl,
-			A2($elm$core$List$cons, a, rl));
-	});
-var $elm_community$maybe_extra$Maybe$Extra$cons = F2(
-	function (item, list) {
-		if (item.$ === 'Just') {
-			var v = item.a;
-			return A2($elm$core$List$cons, v, list);
-		} else {
-			return list;
-		}
-	});
-var $elm_community$maybe_extra$Maybe$Extra$values = A2($elm$core$List$foldr, $elm_community$maybe_extra$Maybe$Extra$cons, _List_Nil);
-var $author$project$Main$allPartitions = function (list) {
-	if (!list.b) {
-		return _List_fromArray(
-			[_List_Nil]);
-	} else {
-		var x = list.a;
-		var xs = list.b;
-		var part = $author$project$Main$allPartitions(xs);
-		var seperates = A2(
-			$elm$core$List$map,
-			function (ys) {
-				return A2(
-					$elm$core$List$cons,
-					_List_fromArray(
-						[x]),
-					ys);
-			},
-			part);
-		var joints = $elm_community$maybe_extra$Maybe$Extra$values(
-			A2(
-				$elm$core$List$map,
-				function (ys) {
-					if (!ys.b) {
-						return $elm$core$Maybe$Nothing;
-					} else {
-						var z = ys.a;
-						var zs = ys.b;
-						return $elm$core$Maybe$Just(
-							A2(
-								$elm$core$List$cons,
-								A2($elm$core$List$cons, x, z),
-								zs));
-					}
-				},
-				part));
-		return _Utils_ap(seperates, joints);
-	}
-};
-var $elm$core$Basics$composeR = F3(
-	function (f, g, x) {
-		return g(
-			f(x));
-	});
-var $elm$core$List$append = F2(
-	function (xs, ys) {
-		if (!ys.b) {
-			return xs;
-		} else {
-			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
-		}
-	});
-var $elm$core$List$concat = function (lists) {
-	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
-};
-var $author$project$Main$expand = function (_v0) {
-	var xs = _v0.a;
-	var dst = _v0.b;
-	var perms = A2(
-		$elm$core$List$map,
-		A2($elm$core$Basics$composeR, $elm$core$List$reverse, $elm$core$List$concat),
-		$author$project$Main$allPartitions(xs));
 	return A2(
-		$elm$core$List$map,
-		function (ys) {
-			return _Utils_Tuple2(ys, dst + 1);
-		},
-		perms);
-};
-var $author$project$Main$dist = F2(
-	function (src, dest) {
-		var f = function (q) {
-			f:
-			while (true) {
-				var _v0 = $turboMaCk$queue$Queue$dequeue(q);
-				if (_v0.a.$ === 'Just') {
-					var _v1 = _v0.a.a;
-					var cur = _v1.a;
-					var d = _v1.b;
-					var remQ = _v0.b;
-					var nxt = $author$project$Main$expand(
-						_Utils_Tuple2(cur, d));
-					var newQ = A3($elm$core$List$foldr, $turboMaCk$queue$Queue$enqueue, remQ, nxt);
-					if (_Utils_eq(cur, dest)) {
-						return d;
-					} else {
-						var $temp$q = newQ;
-						q = $temp$q;
-						continue f;
-					}
-				} else {
-					return -1;
-				}
-			}
-		};
-		return f(
-			A2(
-				$turboMaCk$queue$Queue$enqueue,
-				_Utils_Tuple2(src, 0),
-				$turboMaCk$queue$Queue$empty));
-	});
-var $elm$core$List$map3 = _List_map3;
-var $elm$core$Tuple$mapSecond = F2(
-	function (func, _v0) {
-		var x = _v0.a;
-		var y = _v0.b;
-		return _Utils_Tuple2(
-			x,
-			func(y));
-	});
-var $elm$core$List$any = F2(
-	function (isOkay, list) {
-		any:
-		while (true) {
-			if (!list.b) {
-				return false;
-			} else {
-				var x = list.a;
-				var xs = list.b;
-				if (isOkay(x)) {
-					return true;
-				} else {
-					var $temp$isOkay = isOkay,
-						$temp$list = xs;
-					isOkay = $temp$isOkay;
-					list = $temp$list;
-					continue any;
-				}
-			}
-		}
-	});
-var $elm$core$List$member = F2(
-	function (x, xs) {
-		return A2(
-			$elm$core$List$any,
-			function (a) {
-				return _Utils_eq(a, x);
-			},
-			xs);
-	});
-var $elm$core$Platform$Cmd$batch = _Platform_batch;
-var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
-var $elm$core$Basics$not = _Basics_not;
-var $elm$core$Debug$log = _Debug_log;
-var $author$project$Main$partition = F2(
-	function (list1, list2) {
-		var _v0 = _Utils_Tuple2(list1, list2);
-		if (!_v0.b.b) {
-			return _List_Nil;
-		} else {
-			if (!_v0.a.b) {
-				return _List_fromArray(
-					[list2]);
-			} else {
-				var _v1 = _v0.a;
-				var x = _v1.a;
-				var xs = _v1.b;
-				var _v2 = _v0.b;
-				var y = _v2.a;
-				var ys = _v2.b;
-				if (x) {
-					return A2(
-						$elm$core$List$cons,
-						_List_fromArray(
-							[y]),
-						A2($author$project$Main$partition, xs, ys));
-				} else {
-					var _v3 = A2($author$project$Main$partition, xs, ys);
-					if (_v3.b) {
-						var z = _v3.a;
-						var zs = _v3.b;
-						return A2(
-							$elm$core$List$cons,
-							A2($elm$core$List$cons, y, z),
-							zs);
-					} else {
-						return _List_fromArray(
-							[
-								_List_fromArray(
-								[y])
-							]);
-					}
-				}
-			}
-		}
-	});
-var $author$project$Main$reversePermutation = F2(
-	function (lines, sides) {
-		var partitioned = A2(
-			$elm$core$Debug$log,
-			'partitioned',
-			A2($author$project$Main$partition, lines, sides));
-		var reversed = A2(
-			$elm$core$Debug$log,
-			'reversed',
-			$elm$core$List$reverse(partitioned));
-		return $elm$core$List$concat(reversed);
-	});
-var $elm$core$List$unzip = function (pairs) {
-	var step = F2(
-		function (_v0, _v1) {
-			var x = _v0.a;
-			var y = _v0.b;
-			var xs = _v1.a;
-			var ys = _v1.b;
-			return _Utils_Tuple2(
-				A2($elm$core$List$cons, x, xs),
-				A2($elm$core$List$cons, y, ys));
+		$elm$time$Time$every,
+		10,
+		function (_v0) {
+			return $author$project$Main$Tick;
 		});
-	return A3(
-		$elm$core$List$foldr,
-		step,
-		_Utils_Tuple2(_List_Nil, _List_Nil),
-		pairs);
 };
-var $ohanhi$keyboard$Keyboard$Backspace = {$: 'Backspace'};
-var $ohanhi$keyboard$Keyboard$Clear = {$: 'Clear'};
-var $ohanhi$keyboard$Keyboard$Copy = {$: 'Copy'};
-var $ohanhi$keyboard$Keyboard$CrSel = {$: 'CrSel'};
-var $ohanhi$keyboard$Keyboard$Cut = {$: 'Cut'};
-var $ohanhi$keyboard$Keyboard$Delete = {$: 'Delete'};
-var $ohanhi$keyboard$Keyboard$EraseEof = {$: 'EraseEof'};
-var $ohanhi$keyboard$Keyboard$ExSel = {$: 'ExSel'};
-var $ohanhi$keyboard$Keyboard$Insert = {$: 'Insert'};
-var $ohanhi$keyboard$Keyboard$Paste = {$: 'Paste'};
-var $ohanhi$keyboard$Keyboard$Redo = {$: 'Redo'};
-var $ohanhi$keyboard$Keyboard$Undo = {$: 'Undo'};
-var $ohanhi$keyboard$Keyboard$editingKey = function (_v0) {
-	var value = _v0.a;
-	switch (value) {
-		case 'Backspace':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$Backspace);
-		case 'Clear':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$Clear);
-		case 'Copy':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$Copy);
-		case 'CrSel':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$CrSel);
-		case 'Cut':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$Cut);
-		case 'Delete':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$Delete);
-		case 'EraseEof':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$EraseEof);
-		case 'ExSel':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$ExSel);
-		case 'Insert':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$Insert);
-		case 'Paste':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$Paste);
-		case 'Redo':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$Redo);
-		case 'Undo':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$Undo);
-		default:
-			return $elm$core$Maybe$Nothing;
-	}
-};
-var $ohanhi$keyboard$Keyboard$F1 = {$: 'F1'};
-var $ohanhi$keyboard$Keyboard$F10 = {$: 'F10'};
-var $ohanhi$keyboard$Keyboard$F11 = {$: 'F11'};
-var $ohanhi$keyboard$Keyboard$F12 = {$: 'F12'};
-var $ohanhi$keyboard$Keyboard$F13 = {$: 'F13'};
-var $ohanhi$keyboard$Keyboard$F14 = {$: 'F14'};
-var $ohanhi$keyboard$Keyboard$F15 = {$: 'F15'};
-var $ohanhi$keyboard$Keyboard$F16 = {$: 'F16'};
-var $ohanhi$keyboard$Keyboard$F17 = {$: 'F17'};
-var $ohanhi$keyboard$Keyboard$F18 = {$: 'F18'};
-var $ohanhi$keyboard$Keyboard$F19 = {$: 'F19'};
-var $ohanhi$keyboard$Keyboard$F2 = {$: 'F2'};
-var $ohanhi$keyboard$Keyboard$F20 = {$: 'F20'};
-var $ohanhi$keyboard$Keyboard$F3 = {$: 'F3'};
-var $ohanhi$keyboard$Keyboard$F4 = {$: 'F4'};
-var $ohanhi$keyboard$Keyboard$F5 = {$: 'F5'};
-var $ohanhi$keyboard$Keyboard$F6 = {$: 'F6'};
-var $ohanhi$keyboard$Keyboard$F7 = {$: 'F7'};
-var $ohanhi$keyboard$Keyboard$F8 = {$: 'F8'};
-var $ohanhi$keyboard$Keyboard$F9 = {$: 'F9'};
-var $ohanhi$keyboard$Keyboard$functionKey = function (_v0) {
-	var value = _v0.a;
-	switch (value) {
-		case 'F1':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$F1);
-		case 'F2':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$F2);
-		case 'F3':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$F3);
-		case 'F4':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$F4);
-		case 'F5':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$F5);
-		case 'F6':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$F6);
-		case 'F7':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$F7);
-		case 'F8':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$F8);
-		case 'F9':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$F9);
-		case 'F10':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$F10);
-		case 'F11':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$F11);
-		case 'F12':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$F12);
-		case 'F13':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$F13);
-		case 'F14':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$F14);
-		case 'F15':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$F15);
-		case 'F16':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$F16);
-		case 'F17':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$F17);
-		case 'F18':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$F18);
-		case 'F19':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$F19);
-		case 'F20':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$F20);
-		default:
-			return $elm$core$Maybe$Nothing;
-	}
-};
-var $ohanhi$keyboard$Keyboard$ChannelDown = {$: 'ChannelDown'};
-var $ohanhi$keyboard$Keyboard$ChannelUp = {$: 'ChannelUp'};
-var $ohanhi$keyboard$Keyboard$MediaFastForward = {$: 'MediaFastForward'};
-var $ohanhi$keyboard$Keyboard$MediaPause = {$: 'MediaPause'};
-var $ohanhi$keyboard$Keyboard$MediaPlay = {$: 'MediaPlay'};
-var $ohanhi$keyboard$Keyboard$MediaPlayPause = {$: 'MediaPlayPause'};
-var $ohanhi$keyboard$Keyboard$MediaRecord = {$: 'MediaRecord'};
-var $ohanhi$keyboard$Keyboard$MediaRewind = {$: 'MediaRewind'};
-var $ohanhi$keyboard$Keyboard$MediaStop = {$: 'MediaStop'};
-var $ohanhi$keyboard$Keyboard$MediaTrackNext = {$: 'MediaTrackNext'};
-var $ohanhi$keyboard$Keyboard$MediaTrackPrevious = {$: 'MediaTrackPrevious'};
-var $ohanhi$keyboard$Keyboard$mediaKey = function (_v0) {
-	var value = _v0.a;
-	switch (value) {
-		case 'ChannelDown':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$ChannelDown);
-		case 'ChannelUp':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$ChannelUp);
-		case 'MediaFastForward':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$MediaFastForward);
-		case 'MediaPause':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$MediaPause);
-		case 'MediaPlay':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$MediaPlay);
-		case 'MediaPlayPause':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$MediaPlayPause);
-		case 'MediaRecord':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$MediaRecord);
-		case 'MediaRewind':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$MediaRewind);
-		case 'MediaStop':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$MediaStop);
-		case 'MediaTrackNext':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$MediaTrackNext);
-		case 'MediaTrackPrevious':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$MediaTrackPrevious);
-		default:
-			return $elm$core$Maybe$Nothing;
-	}
-};
-var $ohanhi$keyboard$Keyboard$Alt = {$: 'Alt'};
-var $ohanhi$keyboard$Keyboard$AltGraph = {$: 'AltGraph'};
-var $ohanhi$keyboard$Keyboard$CapsLock = {$: 'CapsLock'};
-var $ohanhi$keyboard$Keyboard$Control = {$: 'Control'};
-var $ohanhi$keyboard$Keyboard$Fn = {$: 'Fn'};
-var $ohanhi$keyboard$Keyboard$FnLock = {$: 'FnLock'};
-var $ohanhi$keyboard$Keyboard$Hyper = {$: 'Hyper'};
-var $ohanhi$keyboard$Keyboard$Meta = {$: 'Meta'};
-var $ohanhi$keyboard$Keyboard$NumLock = {$: 'NumLock'};
-var $ohanhi$keyboard$Keyboard$ScrollLock = {$: 'ScrollLock'};
-var $ohanhi$keyboard$Keyboard$Shift = {$: 'Shift'};
-var $ohanhi$keyboard$Keyboard$Super = {$: 'Super'};
-var $ohanhi$keyboard$Keyboard$Symbol = {$: 'Symbol'};
-var $ohanhi$keyboard$Keyboard$SymbolLock = {$: 'SymbolLock'};
-var $ohanhi$keyboard$Keyboard$modifierKey = function (_v0) {
-	var value = _v0.a;
-	switch (value) {
-		case 'Alt':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$Alt);
-		case 'AltGraph':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$AltGraph);
-		case 'CapsLock':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$CapsLock);
-		case 'Control':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$Control);
-		case 'Fn':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$Fn);
-		case 'FnLock':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$FnLock);
-		case 'Hyper':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$Hyper);
-		case 'Meta':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$Meta);
-		case 'NumLock':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$NumLock);
-		case 'ScrollLock':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$ScrollLock);
-		case 'Shift':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$Shift);
-		case 'Super':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$Super);
-		case 'OS':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$Super);
-		case 'Symbol':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$Symbol);
-		case 'SymbolLock':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$SymbolLock);
-		default:
-			return $elm$core$Maybe$Nothing;
-	}
-};
-var $ohanhi$keyboard$Keyboard$ArrowDown = {$: 'ArrowDown'};
-var $ohanhi$keyboard$Keyboard$ArrowLeft = {$: 'ArrowLeft'};
-var $ohanhi$keyboard$Keyboard$ArrowRight = {$: 'ArrowRight'};
-var $ohanhi$keyboard$Keyboard$ArrowUp = {$: 'ArrowUp'};
-var $ohanhi$keyboard$Keyboard$End = {$: 'End'};
-var $ohanhi$keyboard$Keyboard$Home = {$: 'Home'};
-var $ohanhi$keyboard$Keyboard$PageDown = {$: 'PageDown'};
-var $ohanhi$keyboard$Keyboard$PageUp = {$: 'PageUp'};
-var $ohanhi$keyboard$Keyboard$navigationKey = function (_v0) {
-	var value = _v0.a;
-	switch (value) {
-		case 'ArrowDown':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$ArrowDown);
-		case 'ArrowLeft':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$ArrowLeft);
-		case 'ArrowRight':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$ArrowRight);
-		case 'ArrowUp':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$ArrowUp);
-		case 'Down':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$ArrowDown);
-		case 'Left':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$ArrowLeft);
-		case 'Right':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$ArrowRight);
-		case 'Up':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$ArrowUp);
-		case 'End':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$End);
-		case 'Home':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$Home);
-		case 'PageDown':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$PageDown);
-		case 'PageUp':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$PageUp);
-		default:
-			return $elm$core$Maybe$Nothing;
-	}
-};
-var $ohanhi$keyboard$Keyboard$oneOf = F2(
-	function (fns, key) {
-		oneOf:
-		while (true) {
-			if (!fns.b) {
-				return $elm$core$Maybe$Nothing;
-			} else {
-				var fn = fns.a;
-				var rest = fns.b;
-				var _v1 = fn(key);
-				if (_v1.$ === 'Just') {
-					var a = _v1.a;
-					return $elm$core$Maybe$Just(a);
-				} else {
-					var $temp$fns = rest,
-						$temp$key = key;
-					fns = $temp$fns;
-					key = $temp$key;
-					continue oneOf;
-				}
-			}
-		}
-	});
-var $ohanhi$keyboard$Keyboard$AppSwitch = {$: 'AppSwitch'};
-var $ohanhi$keyboard$Keyboard$Call = {$: 'Call'};
-var $ohanhi$keyboard$Keyboard$Camera = {$: 'Camera'};
-var $ohanhi$keyboard$Keyboard$CameraFocus = {$: 'CameraFocus'};
-var $ohanhi$keyboard$Keyboard$EndCall = {$: 'EndCall'};
-var $ohanhi$keyboard$Keyboard$GoBack = {$: 'GoBack'};
-var $ohanhi$keyboard$Keyboard$GoHome = {$: 'GoHome'};
-var $ohanhi$keyboard$Keyboard$HeadsetHook = {$: 'HeadsetHook'};
-var $ohanhi$keyboard$Keyboard$LastNumberRedial = {$: 'LastNumberRedial'};
-var $ohanhi$keyboard$Keyboard$MannerMode = {$: 'MannerMode'};
-var $ohanhi$keyboard$Keyboard$Notification = {$: 'Notification'};
-var $ohanhi$keyboard$Keyboard$VoiceDial = {$: 'VoiceDial'};
-var $ohanhi$keyboard$Keyboard$phoneKey = function (_v0) {
-	var value = _v0.a;
-	switch (value) {
-		case 'AppSwitch':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$AppSwitch);
-		case 'Call':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$Call);
-		case 'Camera':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$Camera);
-		case 'CameraFocus':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$CameraFocus);
-		case 'EndCall':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$EndCall);
-		case 'GoBack':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$GoBack);
-		case 'GoHome':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$GoHome);
-		case 'HeadsetHook':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$HeadsetHook);
-		case 'LastNumberRedial':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$LastNumberRedial);
-		case 'Notification':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$Notification);
-		case 'MannerMode':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$MannerMode);
-		case 'VoiceDial':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$VoiceDial);
-		default:
-			return $elm$core$Maybe$Nothing;
-	}
-};
-var $ohanhi$keyboard$Keyboard$Again = {$: 'Again'};
-var $ohanhi$keyboard$Keyboard$Attn = {$: 'Attn'};
-var $ohanhi$keyboard$Keyboard$Cancel = {$: 'Cancel'};
-var $ohanhi$keyboard$Keyboard$ContextMenu = {$: 'ContextMenu'};
-var $ohanhi$keyboard$Keyboard$Escape = {$: 'Escape'};
-var $ohanhi$keyboard$Keyboard$Execute = {$: 'Execute'};
-var $ohanhi$keyboard$Keyboard$Find = {$: 'Find'};
-var $ohanhi$keyboard$Keyboard$Finish = {$: 'Finish'};
-var $ohanhi$keyboard$Keyboard$Help = {$: 'Help'};
-var $ohanhi$keyboard$Keyboard$Pause = {$: 'Pause'};
-var $ohanhi$keyboard$Keyboard$Play = {$: 'Play'};
-var $ohanhi$keyboard$Keyboard$Props = {$: 'Props'};
-var $ohanhi$keyboard$Keyboard$Select = {$: 'Select'};
-var $ohanhi$keyboard$Keyboard$ZoomIn = {$: 'ZoomIn'};
-var $ohanhi$keyboard$Keyboard$ZoomOut = {$: 'ZoomOut'};
-var $ohanhi$keyboard$Keyboard$uiKey = function (_v0) {
-	var value = _v0.a;
-	switch (value) {
-		case 'Again':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$Again);
-		case 'Attn':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$Attn);
-		case 'Cancel':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$Cancel);
-		case 'ContextMenu':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$ContextMenu);
-		case 'Escape':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$Escape);
-		case 'Execute':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$Execute);
-		case 'Find':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$Find);
-		case 'Finish':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$Finish);
-		case 'Help':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$Help);
-		case 'Pause':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$Pause);
-		case 'Play':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$Play);
-		case 'Props':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$Props);
-		case 'Select':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$Select);
-		case 'ZoomIn':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$ZoomIn);
-		case 'ZoomOut':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$ZoomOut);
-		default:
-			return $elm$core$Maybe$Nothing;
-	}
-};
-var $ohanhi$keyboard$Keyboard$Enter = {$: 'Enter'};
-var $ohanhi$keyboard$Keyboard$Tab = {$: 'Tab'};
-var $ohanhi$keyboard$Keyboard$whitespaceKey = function (_v0) {
-	var value = _v0.a;
-	switch (value) {
-		case 'Enter':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$Enter);
-		case 'Tab':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$Tab);
-		case 'Spacebar':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$Spacebar);
-		case ' ':
-			return $elm$core$Maybe$Just($ohanhi$keyboard$Keyboard$Spacebar);
-		default:
-			return $elm$core$Maybe$Nothing;
-	}
-};
-var $ohanhi$keyboard$Keyboard$anyKeyWith = function (charParser) {
-	return $ohanhi$keyboard$Keyboard$oneOf(
-		_List_fromArray(
-			[$ohanhi$keyboard$Keyboard$whitespaceKey, charParser, $ohanhi$keyboard$Keyboard$modifierKey, $ohanhi$keyboard$Keyboard$navigationKey, $ohanhi$keyboard$Keyboard$editingKey, $ohanhi$keyboard$Keyboard$functionKey, $ohanhi$keyboard$Keyboard$uiKey, $ohanhi$keyboard$Keyboard$phoneKey, $ohanhi$keyboard$Keyboard$mediaKey]));
-};
-var $ohanhi$keyboard$Keyboard$Character = function (a) {
-	return {$: 'Character', a: a};
-};
-var $elm$core$String$toUpper = _String_toUpper;
-var $ohanhi$keyboard$Keyboard$characterKeyUpper = function (_v0) {
-	var value = _v0.a;
-	return ($elm$core$String$length(value) === 1) ? $elm$core$Maybe$Just(
-		$ohanhi$keyboard$Keyboard$Character(
-			$elm$core$String$toUpper(value))) : $elm$core$Maybe$Nothing;
-};
-var $ohanhi$keyboard$Keyboard$anyKeyUpper = $ohanhi$keyboard$Keyboard$anyKeyWith($ohanhi$keyboard$Keyboard$characterKeyUpper);
-var $elm$core$List$filter = F2(
-	function (isGood, list) {
-		return A3(
-			$elm$core$List$foldr,
-			F2(
-				function (x, xs) {
-					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
-				}),
-			_List_Nil,
-			list);
-	});
-var $elm$core$Basics$neq = _Utils_notEqual;
-var $ohanhi$keyboard$Keyboard$insert = F3(
-	function (keyParser, rawKey, list) {
-		var _v0 = keyParser(rawKey);
-		if (_v0.$ === 'Just') {
-			var key = _v0.a;
-			return A2(
-				$elm$core$List$cons,
-				key,
-				A2(
-					$elm$core$List$filter,
-					$elm$core$Basics$neq(key),
-					list));
-		} else {
-			return list;
-		}
-	});
-var $ohanhi$keyboard$Keyboard$remove = F3(
-	function (keyParser, rawKey, list) {
-		var _v0 = keyParser(rawKey);
-		if (_v0.$ === 'Just') {
-			var key = _v0.a;
-			return A2(
-				$elm$core$List$filter,
-				$elm$core$Basics$neq(key),
-				list);
-		} else {
-			return list;
-		}
-	});
-var $ohanhi$keyboard$Keyboard$updateWithParser = F3(
-	function (keyParser, msg, state) {
-		if (msg.$ === 'Down') {
-			var key = msg.a;
-			return A3($ohanhi$keyboard$Keyboard$insert, keyParser, key, state);
-		} else {
-			var key = msg.a;
-			return A3($ohanhi$keyboard$Keyboard$remove, keyParser, key, state);
-		}
-	});
-var $ohanhi$keyboard$Keyboard$update = $ohanhi$keyboard$Keyboard$updateWithParser($ohanhi$keyboard$Keyboard$anyKeyUpper);
-var $elm$core$Tuple$pair = F2(
-	function (a, b) {
-		return _Utils_Tuple2(a, b);
-	});
-var $elm_community$list_extra$List$Extra$zip = $elm$core$List$map2($elm$core$Tuple$pair);
+var $elm$core$Basics$not = _Basics_not;
 var $author$project$Main$update = F2(
 	function (msg, model) {
-		update:
-		while (true) {
-			switch (msg.$) {
-				case 'Tick':
-					var newAngles = A2(
-						$elm$core$List$indexedMap,
-						F2(
-							function (i, a) {
-								var speed = 3;
-								var a2 = (_Utils_cmp(a, speed) > 0) ? (a - speed) : 0;
-								var _v1 = model.polygonHovered;
-								if (_v1.$ === 'Nothing') {
-									return a2;
-								} else {
-									var j = _v1.a;
-									return _Utils_eq(i, j) ? (a + 1) : a2;
-								}
-							}),
-						model.angles);
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{angles: newAngles}),
-						$elm$core$Platform$Cmd$none);
-				case 'EnterPolygon':
-					var i = msg.a;
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{
-								polygonHovered: $elm$core$Maybe$Just(i)
-							}),
-						$elm$core$Platform$Cmd$none);
-				case 'LeavePolygon':
-					var i = msg.a;
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{polygonHovered: $elm$core$Maybe$Nothing}),
-						$elm$core$Platform$Cmd$none);
-				case 'EnterLine':
-					var i = msg.a;
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{
-								lineHovered: $elm$core$Maybe$Just(i)
-							}),
-						$elm$core$Platform$Cmd$none);
-				case 'LeaveLine':
-					var i = msg.a;
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{lineHovered: $elm$core$Maybe$Nothing}),
-						$elm$core$Platform$Cmd$none);
-				case 'ClickLine':
-					var i = msg.a;
-					var newLineClicked = A2(
-						$elm$core$List$indexedMap,
-						F2(
-							function (j, c) {
-								return _Utils_eq(i, j) ? (!c) : c;
-							}),
-						model.linesClicked);
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{lineHovered: $elm$core$Maybe$Nothing, linesClicked: newLineClicked}),
-						$elm$core$Platform$Cmd$none);
-				case 'KeyMsg':
-					var keyMsg = msg.a;
-					var newPressedKeys = A2($ohanhi$keyboard$Keyboard$update, keyMsg, model.pressedKeys);
-					var spacebarPressed = A2($elm$core$List$member, $ohanhi$keyboard$Keyboard$Spacebar, newPressedKeys);
-					var newModel = _Utils_update(
+		switch (msg.$) {
+			case 'Tick':
+				var newAngles = A2(
+					$elm$core$List$indexedMap,
+					F2(
+						function (i, a) {
+							var speed = 3;
+							var a2 = (_Utils_cmp(a, speed) > 0) ? (a - speed) : 0;
+							var _v1 = model.polygonHovered;
+							if (_v1.$ === 'Nothing') {
+								return a2;
+							} else {
+								var j = _v1.a;
+								return _Utils_eq(i, j) ? (a + 1) : a2;
+							}
+						}),
+					model.angles);
+				return _Utils_Tuple2(
+					_Utils_update(
 						model,
-						{pressedKeys: newPressedKeys});
-					var makeMove = spacebarPressed && A2($elm$core$List$member, true, model.linesClicked);
-					if (makeMove) {
-						var $temp$msg = $author$project$Main$Move,
-							$temp$model = newModel;
-						msg = $temp$msg;
-						model = $temp$model;
-						continue update;
-					} else {
-						return _Utils_Tuple2(newModel, $elm$core$Platform$Cmd$none);
-					}
-				case 'Move':
-					var newRemainingMoves = model.remainingMoves - 1;
-					var newLinesClicked = _List_fromArray(
-						[false, false, false, false]);
-					var movePermute = $author$project$Main$reversePermutation(model.linesClicked);
-					var newSides = movePermute(model.sides);
-					var newModel = _Utils_update(
+						{angles: newAngles}),
+					$elm$core$Platform$Cmd$none);
+			case 'EnterPolygon':
+				var i = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
 						model,
 						{
-							angles: movePermute(model.angles),
-							colors: movePermute(model.colors),
-							linesClicked: newLinesClicked,
-							remainingMoves: newRemainingMoves,
-							sides: newSides
-						});
-					var won = _Utils_eq(
-						newSides,
-						_List_fromArray(
-							[4, 5, 6, 7, 8]));
-					if (won) {
-						return _Utils_Tuple2(
-							_Utils_update(
-								newModel,
-								{winCount: model.winCount + 1}),
-							A2(
-								$elm$random$Random$generate,
-								$author$project$Main$NewPermutation,
-								$elm_community$random_extra$Random$List$shuffle(
-									A2($elm$core$List$range, 0, 4))));
-					} else {
-						if (!newRemainingMoves) {
-							var $temp$msg = $author$project$Main$NewGame,
-								$temp$model = _Utils_update(
-								newModel,
-								{lossCount: model.lossCount + 1});
-							msg = $temp$msg;
-							model = $temp$model;
-							continue update;
-						} else {
-							return _Utils_Tuple2(newModel, $elm$core$Platform$Cmd$none);
-						}
-					}
-				case 'NewPermutation':
-					var p = msg.a;
-					var newPermute = function (xs) {
-						return A2(
-							$elm$core$List$map,
-							$elm$core$Tuple$second,
-							A2(
-								$elm$core$List$sortBy,
-								$elm$core$Tuple$first,
-								A2($elm_community$list_extra$List$Extra$zip, p, xs)));
-					};
-					var $temp$msg = $author$project$Main$NewGame,
-						$temp$model = _Utils_update(
+							polygonHovered: $elm$core$Maybe$Just(i)
+						}),
+					$elm$core$Platform$Cmd$none);
+			case 'LeavePolygon':
+				var i = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
 						model,
-						{permute: newPermute});
-					msg = $temp$msg;
-					model = $temp$model;
-					continue update;
-				default:
-					var _v2 = A2(
-						$elm$core$Tuple$mapSecond,
-						$elm$core$List$unzip,
-						$elm$core$List$unzip(
-							model.permute(
-								A2(
-									$elm$core$List$sortBy,
-									$elm$core$Tuple$first,
-									A4(
-										$elm$core$List$map3,
-										F3(
-											function (x, y, z) {
-												return _Utils_Tuple2(
-													x,
-													_Utils_Tuple2(y, z));
-											}),
-										model.sides,
-										model.angles,
-										model.colors)))));
-					var newSides = _v2.a;
-					var _v3 = _v2.b;
-					var newAngles = _v3.a;
-					var newColors = _v3.b;
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{
-								angles: newAngles,
-								colors: newColors,
-								remainingMoves: A2(
-									$author$project$Main$dist,
-									newSides,
-									_List_fromArray(
-										[4, 5, 6, 7, 8])),
-								sides: newSides
-							}),
-						$elm$core$Platform$Cmd$none);
-			}
+						{polygonHovered: $elm$core$Maybe$Nothing}),
+					$elm$core$Platform$Cmd$none);
+			case 'EnterLine':
+				var i = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							lineHovered: $elm$core$Maybe$Just(i)
+						}),
+					$elm$core$Platform$Cmd$none);
+			case 'LeaveLine':
+				var i = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{lineHovered: $elm$core$Maybe$Nothing}),
+					$elm$core$Platform$Cmd$none);
+			default:
+				var i = msg.a;
+				var newLineClicked = A2(
+					$elm$core$List$indexedMap,
+					F2(
+						function (j, c) {
+							return _Utils_eq(i, j) ? (!c) : c;
+						}),
+					model.linesClicked);
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{lineHovered: $elm$core$Maybe$Nothing, linesClicked: newLineClicked}),
+					$elm$core$Platform$Cmd$none);
 		}
 	});
 var $elm$html$Html$div = _VirtualDom_node('div');
@@ -7072,48 +5719,11 @@ var $author$project$Main$LeaveLine = function (a) {
 var $author$project$Main$LeavePolygon = function (a) {
 	return {$: 'LeavePolygon', a: a};
 };
-var $timjs$elm_collage$Collage$opposite = function (_v0) {
-	var x = _v0.a;
-	var y = _v0.b;
-	return _Utils_Tuple2(-x, -y);
-};
-var $timjs$elm_collage$Collage$shift = F2(
-	function (_v0, collage) {
-		var dx = _v0.a;
-		var dy = _v0.b;
-		var _v1 = collage.shift;
-		var x = _v1.a;
-		var y = _v1.b;
-		return _Utils_update(
-			collage,
-			{
-				shift: _Utils_Tuple2(x + dx, y + dy)
-			});
-	});
-var $timjs$elm_collage$Collage$Layout$align = F2(
-	function (anchor, col) {
-		return A2(
-			$timjs$elm_collage$Collage$shift,
-			$timjs$elm_collage$Collage$opposite(
-				anchor(col)),
-			col);
+var $avh4$elm_color$Color$RgbaSpace = F4(
+	function (a, b, c, d) {
+		return {$: 'RgbaSpace', a: a, b: b, c: c, d: d};
 	});
 var $avh4$elm_color$Color$black = A4($avh4$elm_color$Color$RgbaSpace, 0 / 255, 0 / 255, 0 / 255, 1.0);
-var $timjs$elm_collage$Collage$Core$Chunk = F2(
-	function (a, b) {
-		return {$: 'Chunk', a: a, b: b};
-	});
-var $timjs$elm_collage$Collage$Text$color = F2(
-	function (newcolor, _v0) {
-		var sty = _v0.a;
-		var str = _v0.b;
-		return A2(
-			$timjs$elm_collage$Collage$Core$Chunk,
-			_Utils_update(
-				sty,
-				{color: newcolor}),
-			str);
-	});
 var $elm$core$Basics$pi = _Basics_pi;
 var $elm$core$Basics$degrees = function (angleInDegrees) {
 	return (angleInDegrees * $elm$core$Basics$pi) / 180;
@@ -7168,23 +5778,7 @@ var $timjs$elm_collage$Collage$filled = function (fill) {
 	return $timjs$elm_collage$Collage$styled(
 		_Utils_Tuple2(fill, $timjs$elm_collage$Collage$invisible));
 };
-var $timjs$elm_collage$Collage$Text$None = {$: 'None'};
-var $timjs$elm_collage$Collage$Text$Regular = {$: 'Regular'};
-var $timjs$elm_collage$Collage$Text$Sansserif = {$: 'Sansserif'};
-var $timjs$elm_collage$Collage$Text$Upright = {$: 'Upright'};
-var $timjs$elm_collage$Collage$Text$normal = 16;
-var $timjs$elm_collage$Collage$Text$defaultStyle = {color: $avh4$elm_color$Color$black, line: $timjs$elm_collage$Collage$Text$None, shape: $timjs$elm_collage$Collage$Text$Upright, size: $timjs$elm_collage$Collage$Text$normal, typeface: $timjs$elm_collage$Collage$Text$Sansserif, weight: $timjs$elm_collage$Collage$Text$Regular};
-var $timjs$elm_collage$Collage$Text$fromString = $timjs$elm_collage$Collage$Core$Chunk($timjs$elm_collage$Collage$Text$defaultStyle);
 var $avh4$elm_color$Color$gray = A4($avh4$elm_color$Color$RgbaSpace, 211 / 255, 215 / 255, 207 / 255, 1.0);
-var $elm$core$List$head = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return $elm$core$Maybe$Just(x);
-	} else {
-		return $elm$core$Maybe$Nothing;
-	}
-};
 var $timjs$elm_collage$Collage$Layout$Right = {$: 'Right'};
 var $timjs$elm_collage$Collage$Core$Path = F2(
 	function (a, b) {
@@ -7224,6 +5818,22 @@ var $timjs$elm_collage$Collage$Core$apply = function (_v0) {
 		A2($elm$core$Basics$composeL, shifted, scaled),
 		rotated);
 };
+var $elm$core$Basics$composeR = F3(
+	function (f, g, x) {
+		return g(
+			f(x));
+	});
+var $elm$core$List$append = F2(
+	function (xs, ys) {
+		if (!ys.b) {
+			return xs;
+		} else {
+			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
+		}
+	});
+var $elm$core$List$concat = function (lists) {
+	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
+};
 var $timjs$elm_collage$Collage$Layout$handlePoints = function (thickness) {
 	var thicken = function (_v0) {
 		var x = _v0.a;
@@ -7234,6 +5844,9 @@ var $timjs$elm_collage$Collage$Layout$handlePoints = function (thickness) {
 			(y < 0) ? (y - t) : (y + t));
 	};
 	return $elm$core$List$map(thicken);
+};
+var $elm$core$Basics$negate = function (n) {
+	return -n;
 };
 var $timjs$elm_collage$Collage$Layout$handleBox = F2(
 	function (thickness, _v0) {
@@ -7288,6 +5901,23 @@ var $timjs$elm_collage$Collage$Layout$unpack = function (_v0) {
 			_Utils_Tuple2(toRight, toTop),
 			_Utils_Tuple2(-toLeft, toTop)
 		]);
+};
+var $elm$core$List$unzip = function (pairs) {
+	var step = F2(
+		function (_v0, _v1) {
+			var x = _v0.a;
+			var y = _v0.b;
+			var xs = _v1.a;
+			var ys = _v1.b;
+			return _Utils_Tuple2(
+				A2($elm$core$List$cons, x, xs),
+				A2($elm$core$List$cons, y, ys));
+		});
+	return A3(
+		$elm$core$List$foldr,
+		step,
+		_Utils_Tuple2(_List_Nil, _List_Nil),
+		pairs);
 };
 var $elm$core$Maybe$withDefault = F2(
 	function (_default, maybe) {
@@ -7444,6 +6074,19 @@ var $timjs$elm_collage$Collage$Layout$facing = function (dir) {
 			return $timjs$elm_collage$Collage$Layout$Right;
 	}
 };
+var $timjs$elm_collage$Collage$shift = F2(
+	function (_v0, collage) {
+		var dx = _v0.a;
+		var dy = _v0.b;
+		var _v1 = collage.shift;
+		var x = _v1.a;
+		var y = _v1.b;
+		return _Utils_update(
+			collage,
+			{
+				shift: _Utils_Tuple2(x + dx, y + dy)
+			});
+	});
 var $timjs$elm_collage$Collage$Layout$place = F3(
 	function (dir, a, b) {
 		var len = A2($timjs$elm_collage$Collage$Layout$envelope, dir, a) + A2(
@@ -7544,13 +6187,7 @@ var $elm_community$list_extra$List$Extra$interweaveHelp = F3(
 		}
 	});
 var $elm_community$list_extra$List$Extra$interweave = $elm_community$list_extra$List$Extra$interweaveHelp(_List_Nil);
-var $timjs$elm_collage$Collage$Text$large = 19;
-var $timjs$elm_collage$Collage$Layout$left = function (col) {
-	var _v0 = $timjs$elm_collage$Collage$Layout$distances(col);
-	var toLeft = _v0.toLeft;
-	return _Utils_Tuple2(-toLeft, 0);
-};
-var $elm$core$List$map4 = _List_map4;
+var $elm$core$List$map3 = _List_map3;
 var $timjs$elm_collage$Collage$Core$Polygon = function (a) {
 	return {$: 'Polygon', a: a};
 };
@@ -7588,6 +6225,7 @@ var $timjs$elm_collage$Collage$Events$simpleOn = function (event) {
 		$elm$json$Json$Decode$succeed);
 };
 var $timjs$elm_collage$Collage$Events$onClick = $timjs$elm_collage$Collage$Events$simpleOn('click');
+var $elm$json$Json$Decode$field = _Json_decodeField;
 var $elm$json$Json$Decode$float = _Json_decodeFloat;
 var $timjs$elm_collage$Collage$Events$mouseOn = F2(
 	function (event, msg) {
@@ -7608,65 +6246,17 @@ var $timjs$elm_collage$Collage$Events$mouseOn = F2(
 	});
 var $timjs$elm_collage$Collage$Events$onMouseEnter = $timjs$elm_collage$Collage$Events$mouseOn('mouseenter');
 var $timjs$elm_collage$Collage$Events$onMouseLeave = $timjs$elm_collage$Collage$Events$mouseOn('mouseleave');
-var $timjs$elm_collage$Collage$Core$Text = F2(
-	function (a, b) {
-		return {$: 'Text', a: a, b: b};
-	});
-var $timjs$elm_collage$Collage$Text$height = function (_v0) {
-	var sty = _v0.a;
-	return sty.size;
-};
-var $timjs$elm_collage$Collage$Text$width = function (text) {
-	var sty = text.a;
-	var str = text.b;
-	return ($timjs$elm_collage$Collage$Text$height(text) / 2) * $elm$core$String$length(str);
-};
-var $timjs$elm_collage$Collage$rendered = function (text) {
-	return $timjs$elm_collage$Collage$Core$collage(
-		A2(
-			$timjs$elm_collage$Collage$Core$Text,
-			_Utils_Tuple2(
-				$timjs$elm_collage$Collage$Text$width(text),
-				$timjs$elm_collage$Collage$Text$height(text)),
-			text));
-};
+var $avh4$elm_color$Color$red = A4($avh4$elm_color$Color$RgbaSpace, 204 / 255, 0 / 255, 0 / 255, 1.0);
 var $timjs$elm_collage$Collage$rotate = F2(
 	function (t, collage) {
 		return _Utils_update(
 			collage,
 			{rotation: collage.rotation + t});
 	});
-var $timjs$elm_collage$Collage$Text$size = F2(
-	function (newsize, _v0) {
-		var sty = _v0.a;
-		var str = _v0.b;
-		return A2(
-			$timjs$elm_collage$Collage$Core$Chunk,
-			_Utils_update(
-				sty,
-				{size: newsize}),
-			str);
-	});
-var $timjs$elm_collage$Collage$Layout$vertical = A2(
-	$elm$core$List$foldr,
-	$timjs$elm_collage$Collage$Layout$beside($timjs$elm_collage$Collage$Layout$Down),
-	$timjs$elm_collage$Collage$Layout$empty);
 var $avh4$elm_color$Color$white = A4($avh4$elm_color$Color$RgbaSpace, 255 / 255, 255 / 255, 255 / 255, 1.0);
 var $author$project$Main$modelToCollage = function (model) {
-	var winCounter = $timjs$elm_collage$Collage$rendered(
-		A2(
-			$timjs$elm_collage$Collage$Text$color,
-			A2(
-				$elm$core$Maybe$withDefault,
-				$avh4$elm_color$Color$red,
-				$elm$core$List$head(model.colors)),
-			A2(
-				$timjs$elm_collage$Collage$Text$size,
-				$timjs$elm_collage$Collage$Text$large,
-				$timjs$elm_collage$Collage$Text$fromString(
-					'wins: ' + $elm$core$String$fromInt(model.winCount)))));
-	var polygonWithSpace = F4(
-		function (i, x, a, c) {
+	var polygonWithSpace = F3(
+		function (i, x, a) {
 			var polygon = A2(
 				$timjs$elm_collage$Collage$Events$onMouseLeave,
 				function (_v4) {
@@ -7682,44 +6272,19 @@ var $author$project$Main$modelToCollage = function (model) {
 						$elm$core$Basics$degrees(a),
 						A2(
 							$timjs$elm_collage$Collage$filled,
-							$timjs$elm_collage$Collage$uniform(c),
+							$timjs$elm_collage$Collage$uniform($avh4$elm_color$Color$red),
 							A2($timjs$elm_collage$Collage$ngon, x, 50)))));
 			return A2(
 				$timjs$elm_collage$Collage$Layout$impose,
 				polygon,
 				A2($timjs$elm_collage$Collage$Layout$spacer, 120, 120));
 		});
-	var polygons = A5(
-		$elm$core$List$map4,
+	var polygons = A4(
+		$elm$core$List$map3,
 		polygonWithSpace,
 		A2($elm$core$List$range, 0, 4),
 		model.sides,
-		model.angles,
-		model.colors);
-	var moveCounter = $timjs$elm_collage$Collage$rendered(
-		A2(
-			$timjs$elm_collage$Collage$Text$color,
-			A2(
-				$elm$core$Maybe$withDefault,
-				$avh4$elm_color$Color$red,
-				$elm$core$List$head(model.colors)),
-			A2(
-				$timjs$elm_collage$Collage$Text$size,
-				$timjs$elm_collage$Collage$Text$large,
-				$timjs$elm_collage$Collage$Text$fromString(
-					'  remaining moves: ' + $elm$core$String$fromInt(model.remainingMoves)))));
-	var lossCounter = $timjs$elm_collage$Collage$rendered(
-		A2(
-			$timjs$elm_collage$Collage$Text$color,
-			A2(
-				$elm$core$Maybe$withDefault,
-				$avh4$elm_color$Color$red,
-				$elm$core$List$head(model.colors)),
-			A2(
-				$timjs$elm_collage$Collage$Text$size,
-				$timjs$elm_collage$Collage$Text$large,
-				$timjs$elm_collage$Collage$Text$fromString(
-					'losses: ' + $elm$core$String$fromInt(model.lossCount)))));
+		model.angles);
 	var lineWithSpace = F2(
 		function (i, c) {
 			var c2 = c ? $avh4$elm_color$Color$black : $avh4$elm_color$Color$white;
@@ -7762,20 +6327,8 @@ var $author$project$Main$modelToCollage = function (model) {
 		lineWithSpace,
 		A2($elm$core$List$range, 0, 3),
 		model.linesClicked);
-	var game = $timjs$elm_collage$Collage$Layout$horizontal(
+	return $timjs$elm_collage$Collage$Layout$horizontal(
 		A2($elm_community$list_extra$List$Extra$interweave, polygons, lines));
-	return $timjs$elm_collage$Collage$Layout$vertical(
-		A2(
-			$elm$core$List$map,
-			$timjs$elm_collage$Collage$Layout$align($timjs$elm_collage$Collage$Layout$left),
-			_List_fromArray(
-				[
-					winCounter,
-					lossCounter,
-					moveCounter,
-					A2($timjs$elm_collage$Collage$Layout$spacer, 0, 20),
-					game
-				])));
 };
 var $elm$virtual_dom$VirtualDom$node = function (tag) {
 	return _VirtualDom_node(
@@ -7804,6 +6357,19 @@ var $timjs$elm_collage$Collage$scale = F2(
 	});
 var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
 var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
+var $timjs$elm_collage$Collage$opposite = function (_v0) {
+	var x = _v0.a;
+	var y = _v0.b;
+	return _Utils_Tuple2(-x, -y);
+};
+var $timjs$elm_collage$Collage$Layout$align = F2(
+	function (anchor, col) {
+		return A2(
+			$timjs$elm_collage$Collage$shift,
+			$timjs$elm_collage$Collage$opposite(
+				anchor(col)),
+			col);
+	});
 var $timjs$elm_collage$Collage$Layout$height = function (col) {
 	var _v0 = $timjs$elm_collage$Collage$Layout$distances(col);
 	var toTop = _v0.toTop;
@@ -7922,6 +6488,10 @@ var $timjs$elm_collage$Collage$Render$decodeJoin = function (join) {
 		default:
 			return 'bevel';
 	}
+};
+var $elm$core$Tuple$second = function (_v0) {
+	var y = _v0.b;
+	return y;
 };
 var $timjs$elm_collage$Collage$Render$decodeTransform = function (collage) {
 	var sy = $elm$core$String$fromFloat(collage.scale.b);
@@ -8444,20 +7014,13 @@ var $author$project$Main$view = function (model) {
 		$author$project$Main$modelToCollage(model));
 	var gameSvg = $timjs$elm_collage$Collage$Render$svg(gameCollage);
 	var css = 'html, body {height : 100%;}';
-	var atCenter = function (n) {
-		return A3(
-			$elm$core$List$map2,
-			$elm$html$Html$Attributes$style,
-			_List_fromArray(
-				['display', 'align-items', 'justify-content', 'height']),
-			_List_fromArray(
-				[
-					'flex',
-					'center',
-					'center',
-					$elm$core$String$fromInt(n) + '%'
-				]));
-	};
+	var atCenter = A3(
+		$elm$core$List$map2,
+		$elm$html$Html$Attributes$style,
+		_List_fromArray(
+			['display', 'align-items', 'justify-content', 'height']),
+		_List_fromArray(
+			['flex', 'center', 'center', '100%']));
 	return {
 		body: _List_fromArray(
 			[
@@ -8471,7 +7034,7 @@ var $author$project$Main$view = function (model) {
 					])),
 				A2(
 				$elm$html$Html$div,
-				atCenter(100),
+				atCenter,
 				_List_fromArray(
 					[gameSvg]))
 			]),
@@ -8482,21 +7045,3 @@ var $author$project$Main$main = $elm$browser$Browser$document(
 	{init: $author$project$Main$init, subscriptions: $author$project$Main$subscriptions, update: $author$project$Main$update, view: $author$project$Main$view});
 _Platform_export({'Main':{'init':$author$project$Main$main(
 	$elm$json$Json$Decode$succeed(_Utils_Tuple0))(0)}});}(this));
-
-  var app = Elm.Main.init({ node: document.getElementById("elm") });
-}
-catch (e)
-{
-  // display initialization errors (e.g. bad flags, infinite recursion)
-  var header = document.createElement("h1");
-  header.style.fontFamily = "monospace";
-  header.innerText = "Initialization Error";
-  var pre = document.getElementById("elm");
-  document.body.insertBefore(header, pre);
-  pre.innerText = e;
-  throw e;
-}
-</script>
-
-</body>
-</html>
