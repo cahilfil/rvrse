@@ -118,7 +118,7 @@ modelToCollage model =
         game =
             List.Extra.interweave polygons lines |> horizontal
     in
-    [ winCounter, lossCounter, moveCounter, spacer 0 20, game ]
+    [ winCounter, lossCounter, moveCounter, spacer 0 20, game |> rotate (degrees 90) ]
         |> List.map (align left)
         |> vertical
 
@@ -128,7 +128,7 @@ modelToCollage model =
 
 
 main =
-    Browser.document
+    Browser.element
         { init = init
         , view = view
         , update = update
@@ -208,11 +208,9 @@ view model =
         --svgExplicit [ attribute "width" w, attribute "height" h ]
         --svgExplicit atCenter
         css =
-            "html, body {height : 100%;}"
+            "html, body {height : 90%;}"
     in
-    { title = "R V R S E"
-    , body = [ node "style" [] [ text css ], div (atCenter 100) [ gameSvg ] ]
-    }
+    div (atCenter 100) [ gameSvg ]
 
 
 type alias Partition a =
