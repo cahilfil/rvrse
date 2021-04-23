@@ -1,0 +1,24 @@
+{
+  "name": "rvrse",
+  "version": "0.1.0",
+  "description": "a simple no-nonsense game teaching traditional values like the expertise of arranging polygons in increasing number of sides",
+  "main": "elm.js",
+  "scripts": {
+    "build": "mkdir -p dist && elm make src/Main.elm --output=dist/index.html",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cahilfil/rvrse.git"
+  },
+  "keywords": [
+    "puzzle",
+    "game"
+  ],
+  "author": "cahilfil",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cahilfil/rvrse/issues"
+  },
+  "homepage": "https://github.com/cahilfil/rvrse#readme"
+}
