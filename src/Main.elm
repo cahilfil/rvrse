@@ -118,7 +118,7 @@ modelToCollage model =
         game =
             List.Extra.interweave polygons lines |> horizontal
     in
-    [ winCounter, lossCounter, moveCounter, spacer 0 20, game |> rotate (degrees 90) ]
+    [ winCounter, lossCounter, moveCounter, spacer 0 20, game ]
         |> List.map (align left)
         |> vertical
 
