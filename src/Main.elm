@@ -532,7 +532,7 @@ update msg model =
                 newModel =
                     { model | pressedKeys = newPressedKeys }
             in
-            if makeMove then
+            if makeMove && Maybe.Extra.isNothing model.moveTime then
                 ( { newModel | moveTime = Just 0 }, Cmd.none )
 
             else
