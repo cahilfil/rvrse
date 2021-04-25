@@ -122,32 +122,42 @@ modelToCollage model =
                     empty
 
         combined =
-            case model.moveAngle of
-                Just moveAngle ->
+            case model.moveTime of
+                Just t ->
                     polygons
                         |> partition model.linesClicked
+                        |> List.map (List.intersperse <| spacer 30 1)
+                        |> List.map horizontal
+                        --|> List.map debug
                         |> List.map
-                            (\ps ->
+                            (\group ->
                                 let
                                     w =
-                                        120 * List.length ps |> toFloat
+                                        group |> width
                                 in
                                 impose
-                                    (ps
-                                        |> horizontal
-                                        |> rotate (degrees -moveAngle)
+                                    (group
+                                        |> rotate (degrees -model.moveAngle)
                                         |> center
                                     )
                                     (spacer w 1)
                             )
+                        |> List.intersperse
+                            (impose
+                                (spacer 30 1
+                                    |> rotate (degrees -model.moveAngle)
+                                    |> center
+                                )
+                                (spacer 30 1)
+                            )
                         |> horizontal
-                        |> rotate (degrees moveAngle)
+                        |> rotate (degrees model.moveAngle)
 
                 Nothing ->
                     List.Extra.interweave polygons lines |> horizontal
 
         game =
-            impose (center combined) (spacer 720 600)
+            impose (center combined) (spacer 720 720)
 
         counters =
             [ spacer 10 0
@@ -188,14 +198,15 @@ type alias Model a =
     , winCount : Int
     , lossCount : Int
     , permute : List a -> List a
-    , moveAngle : Maybe Float
+    , moveAngle : Float
+    , moveTime : Maybe Float
     , height : Maybe Float
     , width : Maybe Float
     }
 
 
 type Msg
-    = Tick
+    = Frame Float
     | EnterPolygon Int
     | LeavePolygon Int
     | EnterLine Int
@@ -223,7 +234,8 @@ init _ =
       , winCount = 0
       , lossCount = 0
       , permute = identity
-      , moveAngle = Nothing
+      , moveAngle = 0
+      , moveTime = Nothing
       , width = Nothing
       , height = Nothing
       }
@@ -385,18 +397,18 @@ dist src dest =
 
 update msg model =
     case msg of
-        Tick ->
+        Frame delta ->
             let
                 newAngles =
                     List.indexedMap
                         (\i a ->
                             let
                                 speed =
-                                    3
+                                    0.3
 
                                 a2 =
                                     if a > speed then
-                                        a - speed
+                                        a - delta * speed
 
                                     else
                                         0
@@ -407,7 +419,7 @@ update msg model =
 
                                 Just j ->
                                     if i == j then
-                                        a + 1
+                                        a + delta * 0.1
 
                                     else
                                         a2
@@ -417,16 +429,65 @@ update msg model =
                 newModel =
                     { model | angles = newAngles }
             in
-            case model.moveAngle of
+            case model.moveTime of
                 Nothing ->
                     ( newModel, Cmd.none )
 
-                Just a ->
-                    if a >= 180 then
-                        update Move { newModel | moveAngle = Nothing }
+                Just t ->
+                    let
+                        newT =
+                            t + delta
+
+                        angle tme =
+                            if tme <= 1000 then
+                                180 / 1000 * tme
+
+                            else
+                                180
+
+                        angle2 tme =
+                            let
+                                a2 =
+                                    405 / (1000 * 1000)
+
+                                t1 =
+                                    1000 / 3
+
+                                t2 =
+                                    2000 / 3
+
+                                vmax =
+                                    270 / 1000
+                            in
+                            if t <= t1 then
+                                a2 * t * t
+
+                            else if t <= t2 then
+                                45
+                                    + vmax
+                                    * (t - t1)
+
+                            else if t <= 1000 then
+                                135
+                                    - a2
+                                    * (t - t2)
+                                    * (t - t2)
+                                    + vmax
+                                    * (t - t2)
+
+                            else
+                                180
+                    in
+                    if model.moveAngle >= 180 then
+                        update Move { newModel | moveAngle = log "angle" 0, moveTime = Nothing }
 
                     else
-                        ( { newModel | moveAngle = Just (a + 0.5) }
+                        ( { newModel
+                            | moveAngle = angle2 newT
+                            , moveTime =
+                                --    log "time" <|
+                                Just newT
+                          }
                         , Cmd.none
                         )
 
@@ -472,7 +533,7 @@ update msg model =
                     { model | pressedKeys = newPressedKeys }
             in
             if makeMove then
-                ( { newModel | moveAngle = Just 0 }, Cmd.none )
+                ( { newModel | moveTime = Just 0 }, Cmd.none )
 
             else
                 ( newModel, Cmd.none )
@@ -551,7 +612,8 @@ update msg model =
 
 subscriptions model =
     Sub.batch
-        [ Time.every 10 (\_ -> Tick)
-        , Sub.map KeyMsg Keyboard.subscriptions
+        [ --Time.every 1 (\_ -> Tick)
+          Sub.map KeyMsg Keyboard.subscriptions
         , Browser.Events.onResize WindowResize
+        , Browser.Events.onAnimationFrameDelta Frame
         ]
