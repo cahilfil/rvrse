@@ -219,7 +219,7 @@ init _ =
 view model =
     let
         gameCollage =
-            model |> modelToCollage |> scale 0.8
+            model |> modelToCollage |> scale 1.2
 
         {- w = width gameCollage |> String.fromFloat
 
