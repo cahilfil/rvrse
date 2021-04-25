@@ -5478,7 +5478,8 @@ var author$project$Main$init = function (_n0) {
 			linesClicked: _List_fromArray(
 				[false, false, false, false]),
 			lossCount: 0,
-			moveAngle: elm$core$Maybe$Nothing,
+			moveAngle: 0,
+			moveTime: elm$core$Maybe$Nothing,
 			permute: elm$core$Basics$identity,
 			polygonHovered: elm$core$Maybe$Nothing,
 			pressedKeys: _List_Nil,
@@ -5499,14 +5500,146 @@ var author$project$Main$init = function (_n0) {
 					A2(elm$core$Task$perform, author$project$Main$GotViewport, elm$browser$Browser$Dom$getViewport)
 				])));
 };
+var author$project$Main$Frame = function (a) {
+	return {$: 'Frame', a: a};
+};
 var author$project$Main$KeyMsg = function (a) {
 	return {$: 'KeyMsg', a: a};
 };
-var author$project$Main$Tick = {$: 'Tick'};
 var author$project$Main$WindowResize = F2(
 	function (a, b) {
 		return {$: 'WindowResize', a: a, b: b};
 	});
+var elm$browser$Browser$AnimationManager$Delta = function (a) {
+	return {$: 'Delta', a: a};
+};
+var elm$browser$Browser$AnimationManager$State = F3(
+	function (subs, request, oldTime) {
+		return {oldTime: oldTime, request: request, subs: subs};
+	});
+var elm$browser$Browser$AnimationManager$init = elm$core$Task$succeed(
+	A3(elm$browser$Browser$AnimationManager$State, _List_Nil, elm$core$Maybe$Nothing, 0));
+var elm$browser$Browser$AnimationManager$now = _Browser_now(_Utils_Tuple0);
+var elm$browser$Browser$AnimationManager$rAF = _Browser_rAF(_Utils_Tuple0);
+var elm$core$Platform$sendToSelf = _Platform_sendToSelf;
+var elm$core$Process$kill = _Scheduler_kill;
+var elm$core$Process$spawn = _Scheduler_spawn;
+var elm$browser$Browser$AnimationManager$onEffects = F3(
+	function (router, subs, _n0) {
+		var request = _n0.request;
+		var oldTime = _n0.oldTime;
+		var _n1 = _Utils_Tuple2(request, subs);
+		if (_n1.a.$ === 'Nothing') {
+			if (!_n1.b.b) {
+				var _n2 = _n1.a;
+				return elm$browser$Browser$AnimationManager$init;
+			} else {
+				var _n4 = _n1.a;
+				return A2(
+					elm$core$Task$andThen,
+					function (pid) {
+						return A2(
+							elm$core$Task$andThen,
+							function (time) {
+								return elm$core$Task$succeed(
+									A3(
+										elm$browser$Browser$AnimationManager$State,
+										subs,
+										elm$core$Maybe$Just(pid),
+										time));
+							},
+							elm$browser$Browser$AnimationManager$now);
+					},
+					elm$core$Process$spawn(
+						A2(
+							elm$core$Task$andThen,
+							elm$core$Platform$sendToSelf(router),
+							elm$browser$Browser$AnimationManager$rAF)));
+			}
+		} else {
+			if (!_n1.b.b) {
+				var pid = _n1.a.a;
+				return A2(
+					elm$core$Task$andThen,
+					function (_n3) {
+						return elm$browser$Browser$AnimationManager$init;
+					},
+					elm$core$Process$kill(pid));
+			} else {
+				return elm$core$Task$succeed(
+					A3(elm$browser$Browser$AnimationManager$State, subs, request, oldTime));
+			}
+		}
+	});
+var elm$browser$Browser$AnimationManager$onSelfMsg = F3(
+	function (router, newTime, _n0) {
+		var subs = _n0.subs;
+		var oldTime = _n0.oldTime;
+		var send = function (sub) {
+			if (sub.$ === 'Time') {
+				var tagger = sub.a;
+				return A2(
+					elm$core$Platform$sendToApp,
+					router,
+					tagger(
+						elm$time$Time$millisToPosix(newTime)));
+			} else {
+				var tagger = sub.a;
+				return A2(
+					elm$core$Platform$sendToApp,
+					router,
+					tagger(newTime - oldTime));
+			}
+		};
+		return A2(
+			elm$core$Task$andThen,
+			function (pid) {
+				return A2(
+					elm$core$Task$andThen,
+					function (_n1) {
+						return elm$core$Task$succeed(
+							A3(
+								elm$browser$Browser$AnimationManager$State,
+								subs,
+								elm$core$Maybe$Just(pid),
+								newTime));
+					},
+					elm$core$Task$sequence(
+						A2(elm$core$List$map, send, subs)));
+			},
+			elm$core$Process$spawn(
+				A2(
+					elm$core$Task$andThen,
+					elm$core$Platform$sendToSelf(router),
+					elm$browser$Browser$AnimationManager$rAF)));
+	});
+var elm$browser$Browser$AnimationManager$Time = function (a) {
+	return {$: 'Time', a: a};
+};
+var elm$core$Basics$composeL = F3(
+	function (g, f, x) {
+		return g(
+			f(x));
+	});
+var elm$browser$Browser$AnimationManager$subMap = F2(
+	function (func, sub) {
+		if (sub.$ === 'Time') {
+			var tagger = sub.a;
+			return elm$browser$Browser$AnimationManager$Time(
+				A2(elm$core$Basics$composeL, func, tagger));
+		} else {
+			var tagger = sub.a;
+			return elm$browser$Browser$AnimationManager$Delta(
+				A2(elm$core$Basics$composeL, func, tagger));
+		}
+	});
+_Platform_effectManagers['Browser.AnimationManager'] = _Platform_createManager(elm$browser$Browser$AnimationManager$init, elm$browser$Browser$AnimationManager$onEffects, elm$browser$Browser$AnimationManager$onSelfMsg, 0, elm$browser$Browser$AnimationManager$subMap);
+var elm$browser$Browser$AnimationManager$subscription = _Platform_leaf('Browser.AnimationManager');
+var elm$browser$Browser$AnimationManager$onAnimationFrameDelta = function (tagger) {
+	return elm$browser$Browser$AnimationManager$subscription(
+		elm$browser$Browser$AnimationManager$Delta(tagger));
+};
+var elm$browser$Browser$Events$onAnimationFrameDelta = elm$browser$Browser$AnimationManager$onAnimationFrameDelta;
 var elm$browser$Browser$Events$Window = {$: 'Window'};
 var elm$browser$Browser$Events$MySub = F3(
 	function (a, b, c) {
@@ -5540,7 +5673,6 @@ var elm$browser$Browser$Events$Event = F2(
 	function (key, event) {
 		return {event: event, key: key};
 	});
-var elm$core$Platform$sendToSelf = _Platform_sendToSelf;
 var elm$browser$Browser$Events$spawn = F3(
 	function (router, key, _n0) {
 		var node = _n0.a;
@@ -5779,7 +5911,6 @@ var elm$core$Dict$union = F2(
 	function (t1, t2) {
 		return A3(elm$core$Dict$foldl, elm$core$Dict$insert, t2, t1);
 	});
-var elm$core$Process$kill = _Scheduler_kill;
 var elm$browser$Browser$Events$onEffects = F3(
 	function (router, subs, state) {
 		var stepRight = F3(
@@ -5925,206 +6056,6 @@ var elm$browser$Browser$Events$onResize = function (func) {
 };
 var elm$core$Platform$Sub$batch = _Platform_batch;
 var elm$core$Platform$Sub$map = _Platform_map;
-var elm$time$Time$Every = F2(
-	function (a, b) {
-		return {$: 'Every', a: a, b: b};
-	});
-var elm$time$Time$State = F2(
-	function (taggers, processes) {
-		return {processes: processes, taggers: taggers};
-	});
-var elm$time$Time$init = elm$core$Task$succeed(
-	A2(elm$time$Time$State, elm$core$Dict$empty, elm$core$Dict$empty));
-var elm$core$Dict$get = F2(
-	function (targetKey, dict) {
-		get:
-		while (true) {
-			if (dict.$ === 'RBEmpty_elm_builtin') {
-				return elm$core$Maybe$Nothing;
-			} else {
-				var key = dict.b;
-				var value = dict.c;
-				var left = dict.d;
-				var right = dict.e;
-				var _n1 = A2(elm$core$Basics$compare, targetKey, key);
-				switch (_n1.$) {
-					case 'LT':
-						var $temp$targetKey = targetKey,
-							$temp$dict = left;
-						targetKey = $temp$targetKey;
-						dict = $temp$dict;
-						continue get;
-					case 'EQ':
-						return elm$core$Maybe$Just(value);
-					default:
-						var $temp$targetKey = targetKey,
-							$temp$dict = right;
-						targetKey = $temp$targetKey;
-						dict = $temp$dict;
-						continue get;
-				}
-			}
-		}
-	});
-var elm$time$Time$addMySub = F2(
-	function (_n0, state) {
-		var interval = _n0.a;
-		var tagger = _n0.b;
-		var _n1 = A2(elm$core$Dict$get, interval, state);
-		if (_n1.$ === 'Nothing') {
-			return A3(
-				elm$core$Dict$insert,
-				interval,
-				_List_fromArray(
-					[tagger]),
-				state);
-		} else {
-			var taggers = _n1.a;
-			return A3(
-				elm$core$Dict$insert,
-				interval,
-				A2(elm$core$List$cons, tagger, taggers),
-				state);
-		}
-	});
-var elm$core$Process$spawn = _Scheduler_spawn;
-var elm$time$Time$setInterval = _Time_setInterval;
-var elm$time$Time$spawnHelp = F3(
-	function (router, intervals, processes) {
-		if (!intervals.b) {
-			return elm$core$Task$succeed(processes);
-		} else {
-			var interval = intervals.a;
-			var rest = intervals.b;
-			var spawnTimer = elm$core$Process$spawn(
-				A2(
-					elm$time$Time$setInterval,
-					interval,
-					A2(elm$core$Platform$sendToSelf, router, interval)));
-			var spawnRest = function (id) {
-				return A3(
-					elm$time$Time$spawnHelp,
-					router,
-					rest,
-					A3(elm$core$Dict$insert, interval, id, processes));
-			};
-			return A2(elm$core$Task$andThen, spawnRest, spawnTimer);
-		}
-	});
-var elm$time$Time$onEffects = F3(
-	function (router, subs, _n0) {
-		var processes = _n0.processes;
-		var rightStep = F3(
-			function (_n6, id, _n7) {
-				var spawns = _n7.a;
-				var existing = _n7.b;
-				var kills = _n7.c;
-				return _Utils_Tuple3(
-					spawns,
-					existing,
-					A2(
-						elm$core$Task$andThen,
-						function (_n5) {
-							return kills;
-						},
-						elm$core$Process$kill(id)));
-			});
-		var newTaggers = A3(elm$core$List$foldl, elm$time$Time$addMySub, elm$core$Dict$empty, subs);
-		var leftStep = F3(
-			function (interval, taggers, _n4) {
-				var spawns = _n4.a;
-				var existing = _n4.b;
-				var kills = _n4.c;
-				return _Utils_Tuple3(
-					A2(elm$core$List$cons, interval, spawns),
-					existing,
-					kills);
-			});
-		var bothStep = F4(
-			function (interval, taggers, id, _n3) {
-				var spawns = _n3.a;
-				var existing = _n3.b;
-				var kills = _n3.c;
-				return _Utils_Tuple3(
-					spawns,
-					A3(elm$core$Dict$insert, interval, id, existing),
-					kills);
-			});
-		var _n1 = A6(
-			elm$core$Dict$merge,
-			leftStep,
-			bothStep,
-			rightStep,
-			newTaggers,
-			processes,
-			_Utils_Tuple3(
-				_List_Nil,
-				elm$core$Dict$empty,
-				elm$core$Task$succeed(_Utils_Tuple0)));
-		var spawnList = _n1.a;
-		var existingDict = _n1.b;
-		var killTask = _n1.c;
-		return A2(
-			elm$core$Task$andThen,
-			function (newProcesses) {
-				return elm$core$Task$succeed(
-					A2(elm$time$Time$State, newTaggers, newProcesses));
-			},
-			A2(
-				elm$core$Task$andThen,
-				function (_n2) {
-					return A3(elm$time$Time$spawnHelp, router, spawnList, existingDict);
-				},
-				killTask));
-	});
-var elm$time$Time$onSelfMsg = F3(
-	function (router, interval, state) {
-		var _n0 = A2(elm$core$Dict$get, interval, state.taggers);
-		if (_n0.$ === 'Nothing') {
-			return elm$core$Task$succeed(state);
-		} else {
-			var taggers = _n0.a;
-			var tellTaggers = function (time) {
-				return elm$core$Task$sequence(
-					A2(
-						elm$core$List$map,
-						function (tagger) {
-							return A2(
-								elm$core$Platform$sendToApp,
-								router,
-								tagger(time));
-						},
-						taggers));
-			};
-			return A2(
-				elm$core$Task$andThen,
-				function (_n1) {
-					return elm$core$Task$succeed(state);
-				},
-				A2(elm$core$Task$andThen, tellTaggers, elm$time$Time$now));
-		}
-	});
-var elm$core$Basics$composeL = F3(
-	function (g, f, x) {
-		return g(
-			f(x));
-	});
-var elm$time$Time$subMap = F2(
-	function (f, _n0) {
-		var interval = _n0.a;
-		var tagger = _n0.b;
-		return A2(
-			elm$time$Time$Every,
-			interval,
-			A2(elm$core$Basics$composeL, f, tagger));
-	});
-_Platform_effectManagers['Time'] = _Platform_createManager(elm$time$Time$init, elm$time$Time$onEffects, elm$time$Time$onSelfMsg, 0, elm$time$Time$subMap);
-var elm$time$Time$subscription = _Platform_leaf('Time');
-var elm$time$Time$every = F2(
-	function (interval, tagger) {
-		return elm$time$Time$subscription(
-			A2(elm$time$Time$Every, interval, tagger));
-	});
 var ohanhi$keyboard$Keyboard$Down = function (a) {
 	return {$: 'Down', a: a};
 };
@@ -6160,14 +6091,9 @@ var author$project$Main$subscriptions = function (model) {
 	return elm$core$Platform$Sub$batch(
 		_List_fromArray(
 			[
-				A2(
-				elm$time$Time$every,
-				10,
-				function (_n0) {
-					return author$project$Main$Tick;
-				}),
 				A2(elm$core$Platform$Sub$map, author$project$Main$KeyMsg, ohanhi$keyboard$Keyboard$subscriptions),
-				elm$browser$Browser$Events$onResize(author$project$Main$WindowResize)
+				elm$browser$Browser$Events$onResize(author$project$Main$WindowResize),
+				elm$browser$Browser$Events$onAnimationFrameDelta(author$project$Main$Frame)
 			]));
 };
 var author$project$Main$Move = {$: 'Move'};
@@ -6909,35 +6835,50 @@ var author$project$Main$update = F2(
 		update:
 		while (true) {
 			switch (msg.$) {
-				case 'Tick':
+				case 'Frame':
+					var delta = msg.a;
 					var newAngles = A2(
 						elm$core$List$indexedMap,
 						F2(
 							function (i, a) {
-								var speed = 3;
-								var a2 = (_Utils_cmp(a, speed) > 0) ? (a - speed) : 0;
+								var speed = 0.3;
+								var a2 = (_Utils_cmp(a, speed) > 0) ? (a - (delta * speed)) : 0;
 								var _n2 = model.polygonHovered;
 								if (_n2.$ === 'Nothing') {
 									return a2;
 								} else {
 									var j = _n2.a;
-									return _Utils_eq(i, j) ? (a + 1) : a2;
+									return _Utils_eq(i, j) ? (a + (delta * 0.1)) : a2;
 								}
 							}),
 						model.angles);
 					var newModel = _Utils_update(
 						model,
 						{angles: newAngles});
-					var _n1 = model.moveAngle;
+					var _n1 = model.moveTime;
 					if (_n1.$ === 'Nothing') {
 						return _Utils_Tuple2(newModel, elm$core$Platform$Cmd$none);
 					} else {
-						var a = _n1.a;
-						if (a >= 180) {
+						var t = _n1.a;
+						var newT = t + delta;
+						var angle2 = function (tme) {
+							var vmax = 270 / 1000;
+							var t2 = 2000 / 3;
+							var t1 = 1000 / 3;
+							var a2 = 405 / (1000 * 1000);
+							return (_Utils_cmp(t, t1) < 1) ? ((a2 * t) * t) : ((_Utils_cmp(t, t2) < 1) ? (45 + (vmax * (t - t1))) : ((t <= 1000) ? ((135 - ((a2 * (t - t2)) * (t - t2))) + (vmax * (t - t2))) : 180));
+						};
+						var angle = function (tme) {
+							return (tme <= 1000) ? ((180 / 1000) * tme) : 180;
+						};
+						if (model.moveAngle >= 180) {
 							var $temp$msg = author$project$Main$Move,
 								$temp$model = _Utils_update(
 								newModel,
-								{moveAngle: elm$core$Maybe$Nothing});
+								{
+									moveAngle: A2(elm$core$Debug$log, 'angle', 0),
+									moveTime: elm$core$Maybe$Nothing
+								});
 							msg = $temp$msg;
 							model = $temp$model;
 							continue update;
@@ -6946,7 +6887,8 @@ var author$project$Main$update = F2(
 								_Utils_update(
 									newModel,
 									{
-										moveAngle: elm$core$Maybe$Just(a + 0.5)
+										moveAngle: angle2(newT),
+										moveTime: elm$core$Maybe$Just(newT)
 									}),
 								elm$core$Platform$Cmd$none);
 						}
@@ -7009,7 +6951,7 @@ var author$project$Main$update = F2(
 						_Utils_update(
 							newModel,
 							{
-								moveAngle: elm$core$Maybe$Just(0)
+								moveTime: elm$core$Maybe$Just(0)
 							}),
 						elm$core$Platform$Cmd$none) : _Utils_Tuple2(newModel, elm$core$Platform$Cmd$none);
 				case 'Move':
@@ -7171,6 +7113,24 @@ var elm$core$List$head = function (list) {
 		return elm$core$Maybe$Nothing;
 	}
 };
+var elm$core$List$intersperse = F2(
+	function (sep, xs) {
+		if (!xs.b) {
+			return _List_Nil;
+		} else {
+			var hd = xs.a;
+			var tl = xs.b;
+			var step = F2(
+				function (x, rest) {
+					return A2(
+						elm$core$List$cons,
+						sep,
+						A2(elm$core$List$cons, x, rest));
+				});
+			var spersed = A3(elm$core$List$foldr, step, _List_Nil, tl);
+			return A2(elm$core$List$cons, hd, spersed);
+		}
+	});
 var elm$core$List$map4 = _List_map4;
 var elm_community$list_extra$List$Extra$reverseAppend = F2(
 	function (list1, list2) {
@@ -7709,6 +7669,12 @@ var timjs$elm_collage$Collage$Layout$vertical = A2(
 	elm$core$List$foldr,
 	timjs$elm_collage$Collage$Layout$beside(timjs$elm_collage$Collage$Layout$Down),
 	timjs$elm_collage$Collage$Layout$empty);
+var timjs$elm_collage$Collage$Layout$width = function (col) {
+	var _n0 = timjs$elm_collage$Collage$Layout$distances(col);
+	var toLeft = _n0.toLeft;
+	var toRight = _n0.toRight;
+	return toLeft + toRight;
+};
 var timjs$elm_collage$Collage$Text$Font = function (a) {
 	return {$: 'Font', a: a};
 };
@@ -7877,27 +7843,44 @@ var author$project$Main$modelToCollage = function (model) {
 						])))
 			]));
 	var combined = function () {
-		var _n0 = model.moveAngle;
+		var _n0 = model.moveTime;
 		if (_n0.$ === 'Just') {
-			var moveAngle = _n0.a;
+			var t = _n0.a;
 			return A2(
 				timjs$elm_collage$Collage$rotate,
-				elm$core$Basics$degrees(moveAngle),
+				elm$core$Basics$degrees(model.moveAngle),
 				timjs$elm_collage$Collage$Layout$horizontal(
 					A2(
-						elm$core$List$map,
-						function (ps) {
-							var w = 120 * elm$core$List$length(ps);
-							return A2(
-								timjs$elm_collage$Collage$Layout$impose,
-								timjs$elm_collage$Collage$Layout$center(
-									A2(
-										timjs$elm_collage$Collage$rotate,
-										elm$core$Basics$degrees(-moveAngle),
-										timjs$elm_collage$Collage$Layout$horizontal(ps))),
-								A2(timjs$elm_collage$Collage$Layout$spacer, w, 1));
-						},
-						A2(author$project$Main$partition, model.linesClicked, polygons))));
+						elm$core$List$intersperse,
+						A2(
+							timjs$elm_collage$Collage$Layout$impose,
+							timjs$elm_collage$Collage$Layout$center(
+								A2(
+									timjs$elm_collage$Collage$rotate,
+									elm$core$Basics$degrees(-model.moveAngle),
+									A2(timjs$elm_collage$Collage$Layout$spacer, 30, 1))),
+							A2(timjs$elm_collage$Collage$Layout$spacer, 30, 1)),
+						A2(
+							elm$core$List$map,
+							function (group) {
+								var w = timjs$elm_collage$Collage$Layout$width(group);
+								return A2(
+									timjs$elm_collage$Collage$Layout$impose,
+									timjs$elm_collage$Collage$Layout$center(
+										A2(
+											timjs$elm_collage$Collage$rotate,
+											elm$core$Basics$degrees(-model.moveAngle),
+											group)),
+									A2(timjs$elm_collage$Collage$Layout$spacer, w, 1));
+							},
+							A2(
+								elm$core$List$map,
+								timjs$elm_collage$Collage$Layout$horizontal,
+								A2(
+									elm$core$List$map,
+									elm$core$List$intersperse(
+										A2(timjs$elm_collage$Collage$Layout$spacer, 30, 1)),
+									A2(author$project$Main$partition, model.linesClicked, polygons)))))));
 		} else {
 			return timjs$elm_collage$Collage$Layout$horizontal(
 				A2(elm_community$list_extra$List$Extra$interweave, polygons, lines));
@@ -7906,7 +7889,7 @@ var author$project$Main$modelToCollage = function (model) {
 	var game = A2(
 		timjs$elm_collage$Collage$Layout$impose,
 		timjs$elm_collage$Collage$Layout$center(combined),
-		A2(timjs$elm_collage$Collage$Layout$spacer, 720, 600));
+		A2(timjs$elm_collage$Collage$Layout$spacer, 720, 720));
 	return A2(
 		timjs$elm_collage$Collage$Layout$impose,
 		A2(timjs$elm_collage$Collage$Layout$align, timjs$elm_collage$Collage$Layout$topLeft, counters),
@@ -7942,12 +7925,6 @@ var timjs$elm_collage$Collage$Layout$height = function (col) {
 	var toTop = _n0.toTop;
 	var toBottom = _n0.toBottom;
 	return toTop + toBottom;
-};
-var timjs$elm_collage$Collage$Layout$width = function (col) {
-	var _n0 = timjs$elm_collage$Collage$Layout$distances(col);
-	var toLeft = _n0.toLeft;
-	var toRight = _n0.toRight;
-	return toLeft + toRight;
 };
 var elm$core$String$fromFloat = _String_fromNumber;
 var elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
