@@ -5234,6 +5234,7 @@ var author$project$Main$init = function (_n0) {
 			linesClicked: _List_fromArray(
 				[false, false, false, false]),
 			lossCount: 0,
+			moveAngle: elm$core$Maybe$Nothing,
 			permute: elm$core$Basics$identity,
 			polygonHovered: elm$core$Maybe$Nothing,
 			pressedKeys: _List_Nil,
@@ -6343,6 +6344,7 @@ var author$project$Main$reversePermutation = F2(
 			elm$core$List$reverse(partitioned));
 		return elm$core$List$concat(reversed);
 	});
+var elm$core$Basics$ge = _Utils_ge;
 var elm$core$Basics$not = _Basics_not;
 var elm$core$List$map3 = _List_map3;
 var elm$core$List$any = F2(
@@ -6863,20 +6865,41 @@ var author$project$Main$update = F2(
 							function (i, a) {
 								var speed = 3;
 								var a2 = (_Utils_cmp(a, speed) > 0) ? (a - speed) : 0;
-								var _n1 = model.polygonHovered;
-								if (_n1.$ === 'Nothing') {
+								var _n2 = model.polygonHovered;
+								if (_n2.$ === 'Nothing') {
 									return a2;
 								} else {
-									var j = _n1.a;
+									var j = _n2.a;
 									return _Utils_eq(i, j) ? (a + 1) : a2;
 								}
 							}),
 						model.angles);
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{angles: newAngles}),
-						elm$core$Platform$Cmd$none);
+					var newModel = _Utils_update(
+						model,
+						{angles: newAngles});
+					var _n1 = model.moveAngle;
+					if (_n1.$ === 'Nothing') {
+						return _Utils_Tuple2(newModel, elm$core$Platform$Cmd$none);
+					} else {
+						var a = _n1.a;
+						if (a >= 180) {
+							var $temp$msg = author$project$Main$Move,
+								$temp$model = _Utils_update(
+								newModel,
+								{moveAngle: elm$core$Maybe$Nothing});
+							msg = $temp$msg;
+							model = $temp$model;
+							continue update;
+						} else {
+							return _Utils_Tuple2(
+								_Utils_update(
+									newModel,
+									{
+										moveAngle: elm$core$Maybe$Just(a + 2)
+									}),
+								elm$core$Platform$Cmd$none);
+						}
+					}
 				case 'EnterPolygon':
 					var i = msg.a;
 					return _Utils_Tuple2(
@@ -6931,15 +6954,13 @@ var author$project$Main$update = F2(
 						model,
 						{pressedKeys: newPressedKeys});
 					var makeMove = spacebarPressed && A2(elm$core$List$member, true, model.linesClicked);
-					if (makeMove) {
-						var $temp$msg = author$project$Main$Move,
-							$temp$model = newModel;
-						msg = $temp$msg;
-						model = $temp$model;
-						continue update;
-					} else {
-						return _Utils_Tuple2(newModel, elm$core$Platform$Cmd$none);
-					}
+					return makeMove ? _Utils_Tuple2(
+						_Utils_update(
+							newModel,
+							{
+								moveAngle: elm$core$Maybe$Just(0)
+							}),
+						elm$core$Platform$Cmd$none) : _Utils_Tuple2(newModel, elm$core$Platform$Cmd$none);
 				case 'Move':
 					var newRemainingMoves = model.remainingMoves - 1;
 					var newLinesClicked = _List_fromArray(
@@ -7001,7 +7022,7 @@ var author$project$Main$update = F2(
 					model = $temp$model;
 					continue update;
 				default:
-					var _n2 = A2(
+					var _n3 = A2(
 						elm$core$Tuple$mapSecond,
 						elm$core$List$unzip,
 						elm$core$List$unzip(
@@ -7020,10 +7041,10 @@ var author$project$Main$update = F2(
 										model.sides,
 										model.angles,
 										model.colors)))));
-					var newSides = _n2.a;
-					var _n3 = _n2.b;
-					var newAngles = _n3.a;
-					var newColors = _n3.b;
+					var newSides = _n3.a;
+					var _n4 = _n3.b;
+					var newAngles = _n4.a;
+					var newColors = _n4.b;
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
@@ -7222,6 +7243,26 @@ var timjs$elm_collage$Collage$Core$Rectangle = F3(
 		return {$: 'Rectangle', a: a, b: b, c: c};
 	});
 var timjs$elm_collage$Collage$roundedRectangle = timjs$elm_collage$Collage$Core$Rectangle;
+var timjs$elm_collage$Collage$scaleXY = F2(
+	function (_n0, collage) {
+		var sx = _n0.a;
+		var sy = _n0.b;
+		var _n1 = collage.scale;
+		var sx0 = _n1.a;
+		var sy0 = _n1.b;
+		return _Utils_update(
+			collage,
+			{
+				scale: _Utils_Tuple2(sx0 * sx, sy0 * sy)
+			});
+	});
+var timjs$elm_collage$Collage$scale = F2(
+	function (s, collage) {
+		return A2(
+			timjs$elm_collage$Collage$scaleXY,
+			_Utils_Tuple2(s, s),
+			collage);
+	});
 var timjs$elm_collage$Collage$Events$on = F3(
 	function (event, decoder, collage) {
 		return _Utils_update(
@@ -7286,7 +7327,6 @@ var timjs$elm_collage$Collage$Layout$align = F2(
 				anchor(col)),
 			col);
 	});
-var timjs$elm_collage$Collage$Layout$Right = {$: 'Right'};
 var elm$core$List$maximum = function (list) {
 	if (list.b) {
 		var x = list.a;
@@ -7501,6 +7541,18 @@ var timjs$elm_collage$Collage$Layout$handleBasic = function (basic) {
 		}
 	}
 };
+var timjs$elm_collage$Collage$Layout$base = function (col) {
+	var _n0 = timjs$elm_collage$Collage$Layout$distances(col);
+	var toTop = _n0.toTop;
+	var toBottom = _n0.toBottom;
+	var toLeft = _n0.toLeft;
+	var toRight = _n0.toRight;
+	var tx = (toRight - toLeft) / 2;
+	var ty = (toTop - toBottom) / 2;
+	return _Utils_Tuple2(tx, ty);
+};
+var timjs$elm_collage$Collage$Layout$center = timjs$elm_collage$Collage$Layout$align(timjs$elm_collage$Collage$Layout$base);
+var timjs$elm_collage$Collage$Layout$Right = {$: 'Right'};
 var timjs$elm_collage$Collage$Layout$envelope = F2(
 	function (dir, col) {
 		var _n0 = timjs$elm_collage$Collage$Layout$distances(col);
@@ -7602,6 +7654,9 @@ var timjs$elm_collage$Collage$Layout$vertical = A2(
 	elm$core$List$foldr,
 	timjs$elm_collage$Collage$Layout$beside(timjs$elm_collage$Collage$Layout$Down),
 	timjs$elm_collage$Collage$Layout$empty);
+var timjs$elm_collage$Collage$Text$Font = function (a) {
+	return {$: 'Font', a: a};
+};
 var timjs$elm_collage$Collage$Core$Chunk = F2(
 	function (a, b) {
 		return {$: 'Chunk', a: a, b: b};
@@ -7624,7 +7679,7 @@ var timjs$elm_collage$Collage$Text$Upright = {$: 'Upright'};
 var timjs$elm_collage$Collage$Text$normal = 16;
 var timjs$elm_collage$Collage$Text$defaultStyle = {color: avh4$elm_color$Color$black, line: timjs$elm_collage$Collage$Text$None, shape: timjs$elm_collage$Collage$Text$Upright, size: timjs$elm_collage$Collage$Text$normal, typeface: timjs$elm_collage$Collage$Text$Sansserif, weight: timjs$elm_collage$Collage$Text$Regular};
 var timjs$elm_collage$Collage$Text$fromString = timjs$elm_collage$Collage$Core$Chunk(timjs$elm_collage$Collage$Text$defaultStyle);
-var timjs$elm_collage$Collage$Text$large = 19;
+var timjs$elm_collage$Collage$Text$huge = 23;
 var timjs$elm_collage$Collage$Text$size = F2(
 	function (newsize, _n0) {
 		var sty = _n0.a;
@@ -7636,29 +7691,28 @@ var timjs$elm_collage$Collage$Text$size = F2(
 				{size: newsize}),
 			str);
 	});
+var timjs$elm_collage$Collage$Text$typeface = F2(
+	function (newface, _n0) {
+		var sty = _n0.a;
+		var str = _n0.b;
+		return A2(
+			timjs$elm_collage$Collage$Core$Chunk,
+			_Utils_update(
+				sty,
+				{typeface: newface}),
+			str);
+	});
 var author$project$Main$modelToCollage = function (model) {
-	var winCounter = timjs$elm_collage$Collage$rendered(
-		A2(
-			timjs$elm_collage$Collage$Text$color,
-			A2(
-				elm$core$Maybe$withDefault,
-				avh4$elm_color$Color$red,
-				elm$core$List$head(model.colors)),
-			A2(
-				timjs$elm_collage$Collage$Text$size,
-				timjs$elm_collage$Collage$Text$large,
-				timjs$elm_collage$Collage$Text$fromString(
-					'wins: ' + elm$core$String$fromInt(model.winCount)))));
 	var polygonWithSpace = F4(
 		function (i, x, a, c) {
 			var polygon = A2(
 				timjs$elm_collage$Collage$Events$onMouseLeave,
-				function (_n4) {
+				function (_n5) {
 					return author$project$Main$LeavePolygon(i);
 				},
 				A2(
 					timjs$elm_collage$Collage$Events$onMouseEnter,
-					function (_n3) {
+					function (_n4) {
 						return author$project$Main$EnterPolygon(i);
 					},
 					A2(
@@ -7680,30 +7734,6 @@ var author$project$Main$modelToCollage = function (model) {
 		model.sides,
 		model.angles,
 		model.colors);
-	var moveCounter = timjs$elm_collage$Collage$rendered(
-		A2(
-			timjs$elm_collage$Collage$Text$color,
-			A2(
-				elm$core$Maybe$withDefault,
-				avh4$elm_color$Color$red,
-				elm$core$List$head(model.colors)),
-			A2(
-				timjs$elm_collage$Collage$Text$size,
-				timjs$elm_collage$Collage$Text$large,
-				timjs$elm_collage$Collage$Text$fromString(
-					'  remaining moves: ' + elm$core$String$fromInt(model.remainingMoves)))));
-	var lossCounter = timjs$elm_collage$Collage$rendered(
-		A2(
-			timjs$elm_collage$Collage$Text$color,
-			A2(
-				elm$core$Maybe$withDefault,
-				avh4$elm_color$Color$red,
-				elm$core$List$head(model.colors)),
-			A2(
-				timjs$elm_collage$Collage$Text$size,
-				timjs$elm_collage$Collage$Text$large,
-				timjs$elm_collage$Collage$Text$fromString(
-					'losses: ' + elm$core$String$fromInt(model.lossCount)))));
 	var lineWithSpace = F2(
 		function (i, c) {
 			var c2 = c ? avh4$elm_color$Color$black : avh4$elm_color$Color$white;
@@ -7711,9 +7741,9 @@ var author$project$Main$modelToCollage = function (model) {
 				timjs$elm_collage$Collage$filled,
 				timjs$elm_collage$Collage$uniform(
 					function () {
-						var _n2 = model.lineHovered;
-						if (_n2.$ === 'Just') {
-							var j = _n2.a;
+						var _n3 = model.lineHovered;
+						if (_n3.$ === 'Just') {
+							var j = _n3.a;
 							return _Utils_eq(i, j) ? avh4$elm_color$Color$gray : c2;
 						} else {
 							return c2;
@@ -7725,12 +7755,12 @@ var author$project$Main$modelToCollage = function (model) {
 				author$project$Main$ClickLine(i),
 				A2(
 					timjs$elm_collage$Collage$Events$onMouseLeave,
-					function (_n1) {
+					function (_n2) {
 						return author$project$Main$LeaveLine(i);
 					},
 					A2(
 						timjs$elm_collage$Collage$Events$onMouseEnter,
-						function (_n0) {
+						function (_n1) {
 							return author$project$Main$EnterLine(i);
 						},
 						A2(
@@ -7746,8 +7776,61 @@ var author$project$Main$modelToCollage = function (model) {
 		lineWithSpace,
 		A2(elm$core$List$range, 0, 3),
 		model.linesClicked);
-	var game = timjs$elm_collage$Collage$Layout$horizontal(
-		A2(elm_community$list_extra$List$Extra$interweave, polygons, lines));
+	var counter = F2(
+		function (s, n) {
+			return timjs$elm_collage$Collage$rendered(
+				A2(
+					timjs$elm_collage$Collage$Text$color,
+					A2(
+						elm$core$Maybe$withDefault,
+						avh4$elm_color$Color$red,
+						elm$core$List$head(model.colors)),
+					A2(
+						timjs$elm_collage$Collage$Text$size,
+						timjs$elm_collage$Collage$Text$huge,
+						A2(
+							timjs$elm_collage$Collage$Text$typeface,
+							timjs$elm_collage$Collage$Text$Font('Text Me One'),
+							timjs$elm_collage$Collage$Text$fromString(
+								s + (': ' + elm$core$String$fromInt(n)))))));
+		});
+	var lossCounter = A2(counter, 'losses', model.lossCount);
+	var moveCounter = A2(counter, 'moves left', model.remainingMoves);
+	var winCounter = A2(counter, 'wins', model.winCount);
+	var combined = function () {
+		var _n0 = model.moveAngle;
+		if (_n0.$ === 'Just') {
+			var moveAngle = _n0.a;
+			return A2(
+				timjs$elm_collage$Collage$rotate,
+				elm$core$Basics$degrees(moveAngle),
+				timjs$elm_collage$Collage$Layout$horizontal(
+					A2(
+						elm$core$List$map,
+						function (ps) {
+							var w = 120 * elm$core$List$length(ps);
+							return A2(
+								timjs$elm_collage$Collage$Layout$impose,
+								timjs$elm_collage$Collage$Layout$center(
+									A2(
+										timjs$elm_collage$Collage$rotate,
+										elm$core$Basics$degrees(-moveAngle),
+										timjs$elm_collage$Collage$Layout$horizontal(ps))),
+								A2(timjs$elm_collage$Collage$Layout$spacer, w, 1));
+						},
+						A2(author$project$Main$partition, model.linesClicked, polygons))));
+		} else {
+			return timjs$elm_collage$Collage$Layout$horizontal(
+				A2(elm_community$list_extra$List$Extra$interweave, polygons, lines));
+		}
+	}();
+	var game = A2(
+		timjs$elm_collage$Collage$scale,
+		1.2,
+		A2(
+			timjs$elm_collage$Collage$Layout$impose,
+			timjs$elm_collage$Collage$Layout$center(combined),
+			A2(timjs$elm_collage$Collage$Layout$spacer, 720, 600)));
 	return timjs$elm_collage$Collage$Layout$vertical(
 		A2(
 			elm$core$List$map,
@@ -7764,26 +7847,6 @@ var author$project$Main$modelToCollage = function (model) {
 var elm$html$Html$div = _VirtualDom_node('div');
 var elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
 var elm$html$Html$Attributes$style = elm$virtual_dom$VirtualDom$style;
-var timjs$elm_collage$Collage$scaleXY = F2(
-	function (_n0, collage) {
-		var sx = _n0.a;
-		var sy = _n0.b;
-		var _n1 = collage.scale;
-		var sx0 = _n1.a;
-		var sy0 = _n1.b;
-		return _Utils_update(
-			collage,
-			{
-				scale: _Utils_Tuple2(sx0 * sx, sy0 * sy)
-			});
-	});
-var timjs$elm_collage$Collage$scale = F2(
-	function (s, collage) {
-		return A2(
-			timjs$elm_collage$Collage$scaleXY,
-			_Utils_Tuple2(s, s),
-			collage);
-	});
 var timjs$elm_collage$Collage$Layout$height = function (col) {
 	var _n0 = timjs$elm_collage$Collage$Layout$distances(col);
 	var toTop = _n0.toTop;
@@ -8417,10 +8480,7 @@ var timjs$elm_collage$Collage$Render$svg = function (collage) {
 		A2(timjs$elm_collage$Collage$Layout$align, timjs$elm_collage$Collage$Layout$topLeft, collage));
 };
 var author$project$Main$view = function (model) {
-	var gameCollage = A2(
-		timjs$elm_collage$Collage$scale,
-		1.2,
-		author$project$Main$modelToCollage(model));
+	var gameCollage = author$project$Main$modelToCollage(model);
 	var gameSvg = timjs$elm_collage$Collage$Render$svg(gameCollage);
 	var css = 'html, body {height : 90%;}';
 	var atCenter = function (n) {
