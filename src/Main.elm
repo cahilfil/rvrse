@@ -28,7 +28,7 @@ import Collage.Layout
         , width
         )
 import Collage.Render exposing (svg, svgExplicit)
-import Collage.Text exposing (Shape(..), color, fromString, large, shape, size)
+import Collage.Text exposing (Shape(..), Typeface(..), color, fromString, huge, shape, size, typeface)
 import Color
 import Debug exposing (log)
 import Html exposing (Attribute, Html, div, input, node, text)
@@ -92,29 +92,24 @@ modelToCollage model =
         lines =
             List.map2 lineWithSpace (List.range 0 3) model.linesClicked
 
-        winCounter =
-            "wins: "
-                ++ String.fromInt model.winCount
+        counter s n =
+            s
+                ++ ": "
+                ++ String.fromInt n
                 |> fromString
-                |> size large
+                |> typeface (Font "Text Me One")
+                |> size huge
                 |> color (Maybe.withDefault Color.red <| List.head model.colors)
                 |> rendered
+
+        winCounter =
+            counter "wins" model.winCount
 
         lossCounter =
-            "losses: "
-                ++ String.fromInt model.lossCount
-                |> fromString
-                |> size large
-                |> color (Maybe.withDefault Color.red <| List.head model.colors)
-                |> rendered
+            counter "losses" model.lossCount
 
         moveCounter =
-            "  remaining moves: "
-                ++ String.fromInt model.remainingMoves
-                |> fromString
-                |> size large
-                |> color (Maybe.withDefault Color.red <| List.head model.colors)
-                |> rendered
+            counter "moves left" model.remainingMoves
 
         combined =
             case model.moveAngle of
@@ -142,7 +137,7 @@ modelToCollage model =
                     List.Extra.interweave polygons lines |> horizontal
 
         game =
-            impose (center combined) (spacer 720 600)
+            impose (center combined) (spacer 720 600) |> scale 1.2
     in
     [ winCounter
     , lossCounter
@@ -151,6 +146,7 @@ modelToCollage model =
     , game
     ]
         |> List.map (align left)
+        --|> List.map debug
         |> vertical
 
 
@@ -219,7 +215,7 @@ init _ =
 view model =
     let
         gameCollage =
-            model |> modelToCollage |> scale 1.2
+            model |> modelToCollage
 
         {- w = width gameCollage |> String.fromFloat
 
