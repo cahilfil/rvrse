@@ -1,4 +1,4 @@
-module Main exposing (allPartitions, dist, expand, main)
+module Main exposing (main)
 
 import Browser
 import Collage
@@ -17,6 +17,7 @@ import Collage.Events exposing (onClick, onMouseEnter, onMouseLeave)
 import Collage.Layout
     exposing
         ( align
+        , center
         , debug
         , height
         , horizontal
@@ -115,10 +116,40 @@ modelToCollage model =
                 |> color (Maybe.withDefault Color.red <| List.head model.colors)
                 |> rendered
 
+        combined =
+            case model.moveAngle of
+                Just moveAngle ->
+                    polygons
+                        |> partition model.linesClicked
+                        |> List.map
+                            (\ps ->
+                                let
+                                    w =
+                                        120 * List.length ps |> toFloat
+                                in
+                                impose
+                                    (ps
+                                        |> horizontal
+                                        |> rotate (degrees -moveAngle)
+                                        |> center
+                                    )
+                                    (spacer w 1)
+                            )
+                        |> horizontal
+                        |> rotate (degrees moveAngle)
+
+                Nothing ->
+                    List.Extra.interweave polygons lines |> horizontal
+
         game =
-            List.Extra.interweave polygons lines |> horizontal
+            impose (center combined) (spacer 720 600)
     in
-    [ winCounter, lossCounter, moveCounter, spacer 0 20, game ]
+    [ winCounter
+    , lossCounter
+    , moveCounter
+    , spacer 0 20
+    , game
+    ]
         |> List.map (align left)
         |> vertical
 
@@ -148,6 +179,7 @@ type alias Model a =
     , winCount : Int
     , lossCount : Int
     , permute : List a -> List a
+    , moveAngle : Maybe Float
     }
 
 
@@ -178,6 +210,7 @@ init _ =
       , winCount = 0
       , lossCount = 0
       , permute = identity
+      , moveAngle = Nothing
       }
     , List.range 0 4 |> Random.List.shuffle |> Random.generate NewPermutation
     )
@@ -186,7 +219,7 @@ init _ =
 view model =
     let
         gameCollage =
-            model |> modelToCollage |> scale 1.2
+            model |> modelToCollage |> scale 0.8
 
         {- w = width gameCollage |> String.fromFloat
 
@@ -347,8 +380,22 @@ update msg model =
                                         a2
                         )
                         model.angles
+
+                newModel =
+                    { model | angles = newAngles }
             in
-            ( { model | angles = newAngles }, Cmd.none )
+            case model.moveAngle of
+                Nothing ->
+                    ( newModel, Cmd.none )
+
+                Just a ->
+                    if a >= 180 then
+                        update Move { newModel | moveAngle = Nothing }
+
+                    else
+                        ( { newModel | moveAngle = Just (a + 2) }
+                        , Cmd.none
+                        )
 
         EnterPolygon i ->
             ( { model | polygonHovered = Just i }, Cmd.none )
@@ -392,7 +439,7 @@ update msg model =
                     { model | pressedKeys = newPressedKeys }
             in
             if makeMove then
-                update Move newModel
+                ( { newModel | moveAngle = Just 0 }, Cmd.none )
 
             else
                 ( newModel, Cmd.none )
