@@ -1,6 +1,8 @@
 module Main exposing (main)
 
 import Browser
+import Browser.Dom
+import Browser.Events
 import Collage
     exposing
         ( Collage
@@ -19,11 +21,13 @@ import Collage.Layout
         ( align
         , center
         , debug
+        , empty
         , height
         , horizontal
         , impose
         , left
         , spacer
+        , topLeft
         , vertical
         , width
         )
@@ -39,6 +43,7 @@ import Maybe.Extra
 import Queue
 import Random
 import Random.List
+import Task
 import Time
 
 
@@ -109,7 +114,12 @@ modelToCollage model =
             counter "losses" model.lossCount
 
         moveCounter =
-            counter "moves left" model.remainingMoves
+            case model.remainingMoves of
+                Just n ->
+                    counter "moves left" n
+
+                Nothing ->
+                    empty
 
         combined =
             case model.moveAngle of
@@ -137,17 +147,20 @@ modelToCollage model =
                     List.Extra.interweave polygons lines |> horizontal
 
         game =
-            impose (center combined) (spacer 720 600) |> scale 1.2
+            impose (center combined) (spacer 720 600)
+
+        counters =
+            [ spacer 10 0
+            , [ spacer 0 10, winCounter, lossCounter, moveCounter ]
+                |> List.map
+                    (align
+                        left
+                    )
+                |> vertical
+            ]
+                |> horizontal
     in
-    [ winCounter
-    , lossCounter
-    , moveCounter
-    , spacer 0 20
-    , game
-    ]
-        |> List.map (align left)
-        --|> List.map debug
-        |> vertical
+    impose (align topLeft counters) (align topLeft game)
 
 
 
@@ -171,11 +184,13 @@ type alias Model a =
     , lineHovered : Maybe Int
     , linesClicked : List Bool
     , pressedKeys : List Keyboard.Key
-    , remainingMoves : Int
+    , remainingMoves : Maybe Int
     , winCount : Int
     , lossCount : Int
     , permute : List a -> List a
     , moveAngle : Maybe Float
+    , height : Maybe Float
+    , width : Maybe Float
     }
 
 
@@ -190,6 +205,8 @@ type Msg
     | Move
     | NewPermutation (List Int)
     | NewGame
+    | GotViewport Browser.Dom.Viewport
+    | WindowResize Int Int
 
 
 init : () -> ( Model a, Cmd Msg )
@@ -202,44 +219,64 @@ init _ =
             Nothing
       , linesClicked = [ False, False, False, False ]
       , pressedKeys = []
-      , remainingMoves = -1
+      , remainingMoves = Nothing
       , winCount = 0
       , lossCount = 0
       , permute = identity
       , moveAngle = Nothing
+      , width = Nothing
+      , height = Nothing
       }
-    , List.range 0 4 |> Random.List.shuffle |> Random.generate NewPermutation
+    , Cmd.batch
+        [ List.range 0 4 |> Random.List.shuffle |> Random.generate NewPermutation
+        , Task.perform GotViewport Browser.Dom.getViewport
+        ]
     )
 
 
 view model =
-    let
-        gameCollage =
-            model |> modelToCollage
+    case ( model.width, model.height ) of
+        ( Nothing, _ ) ->
+            text ""
 
-        {- w = width gameCollage |> String.fromFloat
+        ( _, Nothing ) ->
+            text ""
 
-           h =
-               height gameCollage |> String.fromFloat
-        -}
-        atCenter n =
-            List.map2 style
-                [ "display", "align-items", "justify-content", "height" ]
-                [ "flex"
-                , "center"
-                , "center"
-                , String.fromInt n ++ "%"
-                ]
+        ( Just w, Just h ) ->
+            let
+                gameCollage =
+                    model |> modelToCollage
 
-        gameSvg =
-            gameCollage |> svg
+                collageWidth =
+                    width gameCollage
 
-        --svgExplicit [ attribute "width" w, attribute "height" h ]
-        --svgExplicit atCenter
-        css =
-            "html, body {height : 90%;}"
-    in
-    div (atCenter 100) [ gameSvg ]
+                collageHeight =
+                    height gameCollage
+
+                k =
+                    min (w / collageWidth) (h / collageHeight)
+
+                scaledGameCollage =
+                    gameCollage |> scale k
+
+                atCenter n =
+                    List.map2 style
+                        [ "display", "align-items", "justify-content", "height" ]
+                        [ "flex"
+                        , "center"
+                        , "center"
+                        , String.fromInt n ++ "%"
+                        ]
+
+                gameSvg =
+                    scaledGameCollage |> svg
+
+                --svgExplicit [ attribute "width" w, attribute "height" h ]
+                --svgExplicit atCenter
+                css =
+                    "html, body {height : 90%;}"
+            in
+            div (atCenter 100) [ gameSvg ]
 
 
 type alias Partition a =
@@ -389,7 +426,7 @@ update msg model =
                         update Move { newModel | moveAngle = Nothing }
 
                     else
-                        ( { newModel | moveAngle = Just (a + 2) }
+                        ( { newModel | moveAngle = Just (a + 0.5) }
                         , Cmd.none
                         )
 
@@ -449,7 +486,7 @@ update msg model =
                     [ False, False, False, False ]
 
                 newRemainingMoves =
-                    model.remainingMoves - 1
+                    Maybe.map (\x -> x - 1) model.remainingMoves
 
                 newSides =
                     movePermute model.sides
@@ -474,7 +511,7 @@ update msg model =
                         NewPermutation
                 )
 
-            else if newRemainingMoves == 0 then
+            else if Maybe.withDefault -1 newRemainingMoves == 0 then
                 update NewGame { newModel | lossCount = model.lossCount + 1 }
 
             else
@@ -500,14 +537,21 @@ update msg model =
                 | sides = newSides
                 , angles = newAngles
                 , colors = newColors
-                , remainingMoves = dist newSides [ 4, 5, 6, 7, 8 ]
+                , remainingMoves = Just <| dist newSides [ 4, 5, 6, 7, 8 ]
               }
             , Cmd.none
             )
+
+        GotViewport vp ->
+            ( { model | width = Just vp.viewport.width, height = Just vp.viewport.height }, Cmd.none )
+
+        WindowResize w h ->
+            ( { model | width = Just <| toFloat w, height = Just <| toFloat h }, Cmd.none )
 
 
 subscriptions model =
     Sub.batch
         [ Time.every 10 (\_ -> Tick)
         , Sub.map KeyMsg Keyboard.subscriptions
+        , Browser.Events.onResize WindowResize
         ]
