@@ -52,7 +52,7 @@ numberOfObjects =
     5
 
 
-modelToCollage : Model a -> Collage Msg
+modelToCollage : Model -> Collage Msg
 modelToCollage model =
     let
         polygonWithSpace i x a c =
@@ -186,7 +186,7 @@ main =
         }
 
 
-type alias Model a =
+type alias Model =
     { angles : List Float
     , sides : List Int
     , colors : List Color.Color
@@ -197,7 +197,6 @@ type alias Model a =
     , remainingMoves : Maybe Int
     , winCount : Int
     , lossCount : Int
-    , permute : List a -> List a
     , moveAngle : Float
     , moveTime : Maybe Float
     , height : Maybe Float
@@ -216,13 +215,12 @@ type Msg
     | ClickLine Int
     | KeyMsg Keyboard.Msg
     | Move
-    | NewPermutation (List Int)
-    | NewGame
+    | NewGame (List Int)
     | GotViewport Browser.Dom.Viewport
     | WindowResize Int Int
 
 
-init : () -> ( Model a, Cmd Msg )
+init : () -> ( Model, Cmd Msg )
 init _ =
     ( { angles = [ 0, 0, 0, 0, 0 ]
       , sides = [ 4, 5, 6, 7, 8 ]
@@ -235,7 +233,6 @@ init _ =
       , remainingMoves = Nothing
       , winCount = 0
       , lossCount = 0
-      , permute = identity
       , moveAngle = 0
       , moveTime = Nothing
       , width = Nothing
@@ -244,7 +241,7 @@ init _ =
       , previousMoves = []
       }
     , Cmd.batch
-        [ List.range 0 4 |> Random.List.shuffle |> Random.generate NewPermutation
+        [ List.range 0 4 |> Random.List.shuffle |> Random.generate NewGame
         , Task.perform GotViewport Browser.Dom.getViewport
         ]
     )
@@ -595,7 +592,7 @@ update msg model =
                 , List.range 0 4
                     |> Random.List.shuffle
                     |> Random.generate
-                        NewPermutation
+                        NewGame
                 )
 
             else if Maybe.withDefault -1 newRemainingMoves == 0 then
@@ -620,19 +617,15 @@ update msg model =
             else
                 ( newModel, Cmd.none )
 
-        NewPermutation p ->
+        NewGame p ->
             let
-                newPermute xs =
+                permute xs =
                     List.Extra.zip p xs |> List.sortBy Tuple.first |> List.map Tuple.second
-            in
-            update NewGame { model | permute = newPermute }
 
-        NewGame ->
-            let
                 ( newSides, ( newAngles, newColors ) ) =
                     List.map3 (\x y z -> ( x, ( y, z ) )) model.sides model.angles model.colors
                         |> List.sortBy Tuple.first
-                        |> model.permute
+                        |> permute
                         |> List.unzip
                         |> Tuple.mapSecond List.unzip
             in
