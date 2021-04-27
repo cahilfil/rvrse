@@ -62,9 +62,30 @@ modelToCollage model =
             in
             impose polygon (spacer 120 120)
 
+        pickColors =
+            List.map <|
+                case model.wonTime of
+                    Nothing ->
+                        Tuple.second
+
+                    Just wt ->
+                        if modBy 2 (floor wt // 150) == 0 then
+                            Tuple.first
+
+                        else
+                            Tuple.second
+
+        ( sides, angles ) =
+            case model.wonTime of
+                Nothing ->
+                    ( model.sides, model.angles )
+
+                Just _ ->
+                    List.Extra.zip model.sides model.angles |> log "zipped" |> List.sort |> log "sorted" |> List.unzip |> log "unzipped"
+
         -- |> debug
         polygons =
-            List.map4 polygonWithSpace (List.range 0 4) model.sides model.angles model.colors
+            List.map4 polygonWithSpace (List.range 0 4) sides angles (pickColors model.colors)
 
         lineWithSpace i c =
             let
@@ -104,7 +125,7 @@ modelToCollage model =
                 |> fromString
                 |> typeface (Font "Text Me One")
                 |> size huge
-                |> color (Maybe.withDefault Color.red <| List.head model.colors)
+                |> color (Maybe.withDefault Color.red <| List.head (pickColors model.colors))
                 |> rendered
 
         winCounter =
@@ -154,9 +175,29 @@ modelToCollage model =
                         |> rotate (degrees <| toFloat -model.direction * model.moveAngle)
 
                 Nothing ->
+                    let
+                        f ps =
+                            List.Extra.interweave ps lines |> horizontal
+
+                        comb =
+                            f polygons
+                    in
                     case model.loadingTime of
                         Nothing ->
-                            List.Extra.interweave polygons lines |> horizontal
+                            case model.wonTime of
+                                Nothing ->
+                                    if model.loading then
+                                        spacer 0 0
+
+                                    else
+                                        comb
+
+                                Just _ ->
+                                    let
+                                        x =
+                                            log "ali" 0
+                                    in
+                                    comb
 
                         Just lt ->
                             let
@@ -178,7 +219,7 @@ modelToCollage model =
                                         isShown
                                         polygons
                             in
-                            List.Extra.interweave loadingPolygons lines |> horizontal
+                            f loadingPolygons
 
         game =
             impose (center combined) (spacer 720 720)
@@ -213,7 +254,7 @@ main =
 type alias Model =
     { angles : List Float
     , sides : List Int
-    , colors : List Color.Color
+    , colors : List ( Color.Color, Color.Color )
     , polygonHovered : Maybe Int
     , lineHovered : Maybe Int
     , linesClicked : List Bool
@@ -228,6 +269,8 @@ type alias Model =
     , direction : Int
     , previousMoves : List (List Bool)
     , loadingTime : Maybe Float
+    , loading : Bool
+    , wonTime : Maybe Float
     }
 
 
@@ -249,7 +292,7 @@ init : () -> ( Model, Cmd Msg )
 init _ =
     ( { angles = [ 0, 0, 0, 0, 0 ]
       , sides = [ 4, 5, 6, 7, 8 ]
-      , colors = [ Color.red, Color.yellow, Color.green, Color.blue, Color.purple ]
+      , colors = [ ( Color.lightRed, Color.red ), ( Color.lightYellow, Color.yellow ), ( Color.lightGreen, Color.green ), ( Color.lightBlue, Color.blue ), ( Color.lightPurple, Color.purple ) ]
       , polygonHovered = Nothing
       , lineHovered =
             Nothing
@@ -265,6 +308,8 @@ init _ =
       , direction = 1
       , previousMoves = []
       , loadingTime = Nothing
+      , loading = False
+      , wonTime = Nothing
       }
     , Cmd.batch
         [ List.range 0 4 |> Random.List.shuffle |> Random.generate NewGame
@@ -348,10 +393,10 @@ reversePermutation : List Bool -> List a -> List a
 reversePermutation lines sides =
     let
         partitioned =
-            log "partitioned" (partition lines sides)
+            partition lines sides
 
         reversed =
-            log "reversed" (List.reverse partitioned)
+            List.reverse partitioned
     in
     List.concat reversed
 
@@ -453,24 +498,44 @@ update msg model =
                         )
                         model.angles
 
-                newLoadingTime =
-                    case model.loadingTime of
+                updateTime tm lim =
+                    case tm of
                         Nothing ->
                             Nothing
 
-                        Just lt ->
+                        Just t ->
                             let
-                                newLt =
-                                    lt + delta
+                                newT =
+                                    t + delta
                             in
-                            if newLt > 750 then
+                            if newT > lim then
                                 Nothing
 
                             else
-                                Just newLt
+                                Just newT
+
+                ( newLoading, newLoadingTime ) =
+                    case model.wonTime of
+                        Just _ ->
+                            ( model.loading, Nothing )
+
+                        Nothing ->
+                            if model.loading then
+                                ( False, Just 0 )
+
+                            else
+                                ( False, updateTime model.loadingTime 750 )
+
+                newWonTime =
+                    updateTime model.wonTime 1500
 
                 newModel =
-                    { model | angles = newAngles, loadingTime = newLoadingTime }
+                    { model
+                        | angles = newAngles
+                        , loadingTime = newLoadingTime
+                        , loading = newLoading
+                        , wonTime = newWonTime
+                    }
             in
             case model.moveTime of
                 Nothing ->
@@ -522,14 +587,12 @@ update msg model =
                                 180
                     in
                     if model.moveAngle >= 180 then
-                        update Move { newModel | moveAngle = log "angle" 0, moveTime = Nothing }
+                        update Move { newModel | moveAngle = 0, moveTime = Nothing }
 
                     else
                         ( { newModel
                             | moveAngle = angle2 newT
-                            , moveTime =
-                                --    log "time" <|
-                                Just newT
+                            , moveTime = Just newT
                           }
                         , Cmd.none
                         )
@@ -630,7 +693,7 @@ update msg model =
                     }
             in
             if won then
-                ( { newModel | winCount = model.winCount + 1 }
+                ( { newModel | winCount = model.winCount + 1, wonTime = Just 0, loading = True }
                 , List.range 0 4
                     |> Random.List.shuffle
                     |> Random.generate
@@ -676,7 +739,7 @@ update msg model =
                 , angles = newAngles
                 , colors = newColors
                 , remainingMoves = Just <| dist newSides [ 4, 5, 6, 7, 8 ]
-                , loadingTime = Just 0
+                , loading = True
               }
             , Cmd.none
             )
