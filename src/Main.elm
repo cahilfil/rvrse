@@ -154,7 +154,31 @@ modelToCollage model =
                         |> rotate (degrees <| toFloat -model.direction * model.moveAngle)
 
                 Nothing ->
-                    List.Extra.interweave polygons lines |> horizontal
+                    case model.loadingTime of
+                        Nothing ->
+                            List.Extra.interweave polygons lines |> horizontal
+
+                        Just lt ->
+                            let
+                                loadingTimes =
+                                    [ 150, 300, 450, 600, 750 ]
+
+                                isShown =
+                                    List.map (\x -> x <= lt) loadingTimes
+
+                                loadingPolygons =
+                                    List.map2
+                                        (\shown p ->
+                                            if shown then
+                                                p
+
+                                            else
+                                                spacer 120 0
+                                        )
+                                        isShown
+                                        polygons
+                            in
+                            List.Extra.interweave loadingPolygons lines |> horizontal
 
         game =
             impose (center combined) (spacer 720 720)
@@ -203,6 +227,7 @@ type alias Model =
     , width : Maybe Float
     , direction : Int
     , previousMoves : List (List Bool)
+    , loadingTime : Maybe Float
     }
 
 
@@ -239,6 +264,7 @@ init _ =
       , height = Nothing
       , direction = 1
       , previousMoves = []
+      , loadingTime = Nothing
       }
     , Cmd.batch
         [ List.range 0 4 |> Random.List.shuffle |> Random.generate NewGame
@@ -427,8 +453,24 @@ update msg model =
                         )
                         model.angles
 
+                newLoadingTime =
+                    case model.loadingTime of
+                        Nothing ->
+                            Nothing
+
+                        Just lt ->
+                            let
+                                newLt =
+                                    lt + delta
+                            in
+                            if newLt > 750 then
+                                Nothing
+
+                            else
+                                Just newLt
+
                 newModel =
-                    { model | angles = newAngles }
+                    { model | angles = newAngles, loadingTime = newLoadingTime }
             in
             case model.moveTime of
                 Nothing ->
@@ -634,6 +676,7 @@ update msg model =
                 , angles = newAngles
                 , colors = newColors
                 , remainingMoves = Just <| dist newSides [ 4, 5, 6, 7, 8 ]
+                , loadingTime = Just 0
               }
             , Cmd.none
             )
