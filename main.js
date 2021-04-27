@@ -4441,8 +4441,8 @@ function _Time_getZoneName()
 var author$project$Main$GotViewport = function (a) {
 	return {$: 'GotViewport', a: a};
 };
-var author$project$Main$NewPermutation = function (a) {
-	return {$: 'NewPermutation', a: a};
+var author$project$Main$NewGame = function (a) {
+	return {$: 'NewGame', a: a};
 };
 var avh4$elm_color$Color$RgbaSpace = F4(
 	function (a, b, c, d) {
@@ -4531,6 +4531,11 @@ var elm$core$Array$toList = function (array) {
 var elm$core$Basics$fdiv = _Basics_fdiv;
 var avh4$elm_color$Color$blue = A4(avh4$elm_color$Color$RgbaSpace, 52 / 255, 101 / 255, 164 / 255, 1.0);
 var avh4$elm_color$Color$green = A4(avh4$elm_color$Color$RgbaSpace, 115 / 255, 210 / 255, 22 / 255, 1.0);
+var avh4$elm_color$Color$lightBlue = A4(avh4$elm_color$Color$RgbaSpace, 114 / 255, 159 / 255, 207 / 255, 1.0);
+var avh4$elm_color$Color$lightGreen = A4(avh4$elm_color$Color$RgbaSpace, 138 / 255, 226 / 255, 52 / 255, 1.0);
+var avh4$elm_color$Color$lightPurple = A4(avh4$elm_color$Color$RgbaSpace, 173 / 255, 127 / 255, 168 / 255, 1.0);
+var avh4$elm_color$Color$lightRed = A4(avh4$elm_color$Color$RgbaSpace, 239 / 255, 41 / 255, 41 / 255, 1.0);
+var avh4$elm_color$Color$lightYellow = A4(avh4$elm_color$Color$RgbaSpace, 255 / 255, 233 / 255, 79 / 255, 1.0);
 var avh4$elm_color$Color$purple = A4(avh4$elm_color$Color$RgbaSpace, 117 / 255, 80 / 255, 123 / 255, 1.0);
 var avh4$elm_color$Color$red = A4(avh4$elm_color$Color$RgbaSpace, 204 / 255, 0 / 255, 0 / 255, 1.0);
 var avh4$elm_color$Color$yellow = A4(avh4$elm_color$Color$RgbaSpace, 237 / 255, 212 / 255, 0 / 255, 1.0);
@@ -5472,29 +5477,39 @@ var author$project$Main$init = function (_n0) {
 			angles: _List_fromArray(
 				[0, 0, 0, 0, 0]),
 			colors: _List_fromArray(
-				[avh4$elm_color$Color$red, avh4$elm_color$Color$yellow, avh4$elm_color$Color$green, avh4$elm_color$Color$blue, avh4$elm_color$Color$purple]),
+				[
+					_Utils_Tuple2(avh4$elm_color$Color$lightRed, avh4$elm_color$Color$red),
+					_Utils_Tuple2(avh4$elm_color$Color$lightYellow, avh4$elm_color$Color$yellow),
+					_Utils_Tuple2(avh4$elm_color$Color$lightGreen, avh4$elm_color$Color$green),
+					_Utils_Tuple2(avh4$elm_color$Color$lightBlue, avh4$elm_color$Color$blue),
+					_Utils_Tuple2(avh4$elm_color$Color$lightPurple, avh4$elm_color$Color$purple)
+				]),
+			direction: 1,
 			height: elm$core$Maybe$Nothing,
 			lineHovered: elm$core$Maybe$Nothing,
 			linesClicked: _List_fromArray(
 				[false, false, false, false]),
+			loading: false,
+			loadingTime: elm$core$Maybe$Nothing,
 			lossCount: 0,
 			moveAngle: 0,
 			moveTime: elm$core$Maybe$Nothing,
-			permute: elm$core$Basics$identity,
 			polygonHovered: elm$core$Maybe$Nothing,
 			pressedKeys: _List_Nil,
+			previousMoves: _List_Nil,
 			remainingMoves: elm$core$Maybe$Nothing,
 			sides: _List_fromArray(
 				[4, 5, 6, 7, 8]),
 			width: elm$core$Maybe$Nothing,
-			winCount: 0
+			winCount: 0,
+			wonTime: elm$core$Maybe$Nothing
 		},
 		elm$core$Platform$Cmd$batch(
 			_List_fromArray(
 				[
 					A2(
 					elm$random$Random$generate,
-					author$project$Main$NewPermutation,
+					author$project$Main$NewGame,
 					elm_community$random_extra$Random$List$shuffle(
 						A2(elm$core$List$range, 0, 4))),
 					A2(elm$core$Task$perform, author$project$Main$GotViewport, elm$browser$Browser$Dom$getViewport)
@@ -6097,7 +6112,6 @@ var author$project$Main$subscriptions = function (model) {
 			]));
 };
 var author$project$Main$Move = {$: 'Move'};
-var author$project$Main$NewGame = {$: 'NewGame'};
 var elm_community$maybe_extra$Maybe$Extra$cons = F2(
 	function (item, list) {
 		if (item.$ === 'Just') {
@@ -6290,17 +6304,10 @@ var author$project$Main$partition = F2(
 			}
 		}
 	});
-var elm$core$Debug$log = _Debug_log;
 var author$project$Main$reversePermutation = F2(
 	function (lines, sides) {
-		var partitioned = A2(
-			elm$core$Debug$log,
-			'partitioned',
-			A2(author$project$Main$partition, lines, sides));
-		var reversed = A2(
-			elm$core$Debug$log,
-			'reversed',
-			elm$core$List$reverse(partitioned));
+		var partitioned = A2(author$project$Main$partition, lines, sides);
+		var reversed = elm$core$List$reverse(partitioned);
 		return elm$core$List$concat(reversed);
 	});
 var elm$core$Basics$ge = _Utils_ge;
@@ -6386,6 +6393,13 @@ var elm$core$Tuple$pair = F2(
 		return _Utils_Tuple2(a, b);
 	});
 var elm_community$list_extra$List$Extra$zip = elm$core$List$map2(elm$core$Tuple$pair);
+var elm_community$maybe_extra$Maybe$Extra$isNothing = function (m) {
+	if (m.$ === 'Nothing') {
+		return true;
+	} else {
+		return false;
+	}
+};
 var ohanhi$keyboard$Keyboard$Spacebar = {$: 'Spacebar'};
 var ohanhi$keyboard$Keyboard$Backspace = {$: 'Backspace'};
 var ohanhi$keyboard$Keyboard$Clear = {$: 'Clear'};
@@ -6837,29 +6851,54 @@ var author$project$Main$update = F2(
 			switch (msg.$) {
 				case 'Frame':
 					var delta = msg.a;
+					var updateTime = F2(
+						function (tm, lim) {
+							if (tm.$ === 'Nothing') {
+								return elm$core$Maybe$Nothing;
+							} else {
+								var t = tm.a;
+								var newT = t + delta;
+								return (_Utils_cmp(newT, lim) > 0) ? elm$core$Maybe$Nothing : elm$core$Maybe$Just(newT);
+							}
+						});
+					var newWonTime = A2(updateTime, model.wonTime, 1500);
 					var newAngles = A2(
 						elm$core$List$indexedMap,
 						F2(
 							function (i, a) {
 								var speed = 0.3;
 								var a2 = (_Utils_cmp(a, speed) > 0) ? (a - (delta * speed)) : 0;
-								var _n2 = model.polygonHovered;
-								if (_n2.$ === 'Nothing') {
+								var _n4 = model.polygonHovered;
+								if (_n4.$ === 'Nothing') {
 									return a2;
 								} else {
-									var j = _n2.a;
+									var j = _n4.a;
 									return _Utils_eq(i, j) ? (a + (delta * 0.1)) : a2;
 								}
 							}),
 						model.angles);
+					var _n1 = function () {
+						var _n2 = model.wonTime;
+						if (_n2.$ === 'Just') {
+							return _Utils_Tuple2(model.loading, elm$core$Maybe$Nothing);
+						} else {
+							return model.loading ? _Utils_Tuple2(
+								false,
+								elm$core$Maybe$Just(0)) : _Utils_Tuple2(
+								false,
+								A2(updateTime, model.loadingTime, 750));
+						}
+					}();
+					var newLoading = _n1.a;
+					var newLoadingTime = _n1.b;
 					var newModel = _Utils_update(
 						model,
-						{angles: newAngles});
-					var _n1 = model.moveTime;
-					if (_n1.$ === 'Nothing') {
+						{angles: newAngles, loading: newLoading, loadingTime: newLoadingTime, wonTime: newWonTime});
+					var _n3 = model.moveTime;
+					if (_n3.$ === 'Nothing') {
 						return _Utils_Tuple2(newModel, elm$core$Platform$Cmd$none);
 					} else {
-						var t = _n1.a;
+						var t = _n3.a;
 						var newT = t + delta;
 						var angle2 = function (tme) {
 							var vmax = 270 / 1000;
@@ -6875,10 +6914,7 @@ var author$project$Main$update = F2(
 							var $temp$msg = author$project$Main$Move,
 								$temp$model = _Utils_update(
 								newModel,
-								{
-									moveAngle: A2(elm$core$Debug$log, 'angle', 0),
-									moveTime: elm$core$Maybe$Nothing
-								});
+								{moveAngle: 0, moveTime: elm$core$Maybe$Nothing});
 							msg = $temp$msg;
 							model = $temp$model;
 							continue update;
@@ -6947,7 +6983,7 @@ var author$project$Main$update = F2(
 						model,
 						{pressedKeys: newPressedKeys});
 					var makeMove = spacebarPressed && A2(elm$core$List$member, true, model.linesClicked);
-					return makeMove ? _Utils_Tuple2(
+					return (makeMove && elm_community$maybe_extra$Maybe$Extra$isNothing(model.moveTime)) ? _Utils_Tuple2(
 						_Utils_update(
 							newModel,
 							{
@@ -6958,11 +6994,39 @@ var author$project$Main$update = F2(
 					var newRemainingMoves = A2(
 						elm$core$Maybe$map,
 						function (x) {
-							return x - 1;
+							return x - model.direction;
 						},
 						model.remainingMoves);
-					var newLinesClicked = _List_fromArray(
-						[false, false, false, false]);
+					var newPreviousMoves = function () {
+						if (model.direction === 1) {
+							return A2(elm$core$List$cons, model.linesClicked, model.previousMoves);
+						} else {
+							var _n8 = model.previousMoves;
+							if (!_n8.b) {
+								return _List_Nil;
+							} else {
+								var m = _n8.a;
+								var ms = _n8.b;
+								return ms;
+							}
+						}
+					}();
+					var newLinesClicked = function () {
+						if (model.direction === 1) {
+							return _List_fromArray(
+								[false, false, false, false]);
+						} else {
+							var _n7 = model.previousMoves;
+							if (!_n7.b) {
+								return _List_fromArray(
+									[false, false, false, false]);
+							} else {
+								var m = _n7.a;
+								var ms = _n7.b;
+								return elm$core$List$reverse(m);
+							}
+						}
+					}();
 					var movePermute = author$project$Main$reversePermutation(model.linesClicked);
 					var newSides = movePermute(model.sides);
 					var newModel = _Utils_update(
@@ -6971,6 +7035,7 @@ var author$project$Main$update = F2(
 							angles: movePermute(model.angles),
 							colors: movePermute(model.colors),
 							linesClicked: newLinesClicked,
+							previousMoves: newPreviousMoves,
 							remainingMoves: newRemainingMoves,
 							sides: newSides
 						});
@@ -6982,28 +7047,55 @@ var author$project$Main$update = F2(
 						return _Utils_Tuple2(
 							_Utils_update(
 								newModel,
-								{winCount: model.winCount + 1}),
+								{
+									loading: true,
+									winCount: model.winCount + 1,
+									wonTime: elm$core$Maybe$Just(0)
+								}),
 							A2(
 								elm$random$Random$generate,
-								author$project$Main$NewPermutation,
+								author$project$Main$NewGame,
 								elm_community$random_extra$Random$List$shuffle(
 									A2(elm$core$List$range, 0, 4))));
 					} else {
 						if (!A2(elm$core$Maybe$withDefault, -1, newRemainingMoves)) {
-							var $temp$msg = author$project$Main$NewGame,
-								$temp$model = _Utils_update(
-								newModel,
-								{lossCount: model.lossCount + 1});
-							msg = $temp$msg;
-							model = $temp$model;
-							continue update;
+							return _Utils_Tuple2(
+								_Utils_update(
+									newModel,
+									{
+										direction: -1,
+										linesClicked: elm$core$List$reverse(model.linesClicked),
+										lossCount: model.lossCount + 1,
+										moveTime: elm$core$Maybe$Just(0),
+										previousMoves: model.previousMoves
+									}),
+								elm$core$Platform$Cmd$none);
 						} else {
-							return _Utils_Tuple2(newModel, elm$core$Platform$Cmd$none);
+							if (_Utils_eq(model.direction, -1)) {
+								var _n6 = model.previousMoves;
+								if (!_n6.b) {
+									return _Utils_Tuple2(
+										_Utils_update(
+											newModel,
+											{direction: 1}),
+										elm$core$Platform$Cmd$none);
+								} else {
+									return _Utils_Tuple2(
+										_Utils_update(
+											newModel,
+											{
+												moveTime: elm$core$Maybe$Just(0)
+											}),
+										elm$core$Platform$Cmd$none);
+								}
+							} else {
+								return _Utils_Tuple2(newModel, elm$core$Platform$Cmd$none);
+							}
 						}
 					}
-				case 'NewPermutation':
+				case 'NewGame':
 					var p = msg.a;
-					var newPermute = function (xs) {
+					var permute = function (xs) {
 						return A2(
 							elm$core$List$map,
 							elm$core$Tuple$second,
@@ -7012,19 +7104,11 @@ var author$project$Main$update = F2(
 								elm$core$Tuple$first,
 								A2(elm_community$list_extra$List$Extra$zip, p, xs)));
 					};
-					var $temp$msg = author$project$Main$NewGame,
-						$temp$model = _Utils_update(
-						model,
-						{permute: newPermute});
-					msg = $temp$msg;
-					model = $temp$model;
-					continue update;
-				case 'NewGame':
-					var _n3 = A2(
+					var _n9 = A2(
 						elm$core$Tuple$mapSecond,
 						elm$core$List$unzip,
 						elm$core$List$unzip(
-							model.permute(
+							permute(
 								A2(
 									elm$core$List$sortBy,
 									elm$core$Tuple$first,
@@ -7039,16 +7123,17 @@ var author$project$Main$update = F2(
 										model.sides,
 										model.angles,
 										model.colors)))));
-					var newSides = _n3.a;
-					var _n4 = _n3.b;
-					var newAngles = _n4.a;
-					var newColors = _n4.b;
+					var newSides = _n9.a;
+					var _n10 = _n9.b;
+					var newAngles = _n10.a;
+					var newColors = _n10.b;
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
 							{
 								angles: newAngles,
 								colors: newColors,
+								loading: true,
 								remainingMoves: elm$core$Maybe$Just(
 									A2(
 										author$project$Main$dist,
@@ -7104,6 +7189,8 @@ var elm$core$Basics$pi = _Basics_pi;
 var elm$core$Basics$degrees = function (angleInDegrees) {
 	return (angleInDegrees * elm$core$Basics$pi) / 180;
 };
+var elm$core$Basics$modBy = _Basics_modBy;
+var elm$core$Debug$log = _Debug_log;
 var elm$core$List$head = function (list) {
 	if (list.b) {
 		var x = list.a;
@@ -7132,6 +7219,9 @@ var elm$core$List$intersperse = F2(
 		}
 	});
 var elm$core$List$map4 = _List_map4;
+var elm$core$List$sort = function (xs) {
+	return A2(elm$core$List$sortBy, elm$core$Basics$identity, xs);
+};
 var elm_community$list_extra$List$Extra$reverseAppend = F2(
 	function (list1, list2) {
 		return A3(elm$core$List$foldl, elm$core$List$cons, list2, list1);
@@ -7728,12 +7818,12 @@ var author$project$Main$modelToCollage = function (model) {
 		function (i, x, a, c) {
 			var polygon = A2(
 				timjs$elm_collage$Collage$Events$onMouseLeave,
-				function (_n6) {
+				function (_n11) {
 					return author$project$Main$LeavePolygon(i);
 				},
 				A2(
 					timjs$elm_collage$Collage$Events$onMouseEnter,
-					function (_n5) {
+					function (_n10) {
 						return author$project$Main$EnterPolygon(i);
 					},
 					A2(
@@ -7748,13 +7838,19 @@ var author$project$Main$modelToCollage = function (model) {
 				polygon,
 				A2(timjs$elm_collage$Collage$Layout$spacer, 120, 120));
 		});
-	var polygons = A5(
-		elm$core$List$map4,
-		polygonWithSpace,
-		A2(elm$core$List$range, 0, 4),
-		model.sides,
-		model.angles,
-		model.colors);
+	var pickColors = elm$core$List$map(
+		function () {
+			var _n9 = model.wonTime;
+			if (_n9.$ === 'Nothing') {
+				return elm$core$Tuple$second;
+			} else {
+				var wt = _n9.a;
+				return (!A2(
+					elm$core$Basics$modBy,
+					2,
+					(elm$core$Basics$floor(wt) / 150) | 0)) ? elm$core$Tuple$first : elm$core$Tuple$second;
+			}
+		}());
 	var lineWithSpace = F2(
 		function (i, c) {
 			var c2 = c ? avh4$elm_color$Color$black : avh4$elm_color$Color$white;
@@ -7762,9 +7858,9 @@ var author$project$Main$modelToCollage = function (model) {
 				timjs$elm_collage$Collage$filled,
 				timjs$elm_collage$Collage$uniform(
 					function () {
-						var _n4 = model.lineHovered;
-						if (_n4.$ === 'Just') {
-							var j = _n4.a;
+						var _n8 = model.lineHovered;
+						if (_n8.$ === 'Just') {
+							var j = _n8.a;
 							return _Utils_eq(i, j) ? avh4$elm_color$Color$gray : c2;
 						} else {
 							return c2;
@@ -7776,12 +7872,12 @@ var author$project$Main$modelToCollage = function (model) {
 				author$project$Main$ClickLine(i),
 				A2(
 					timjs$elm_collage$Collage$Events$onMouseLeave,
-					function (_n3) {
+					function (_n7) {
 						return author$project$Main$LeaveLine(i);
 					},
 					A2(
 						timjs$elm_collage$Collage$Events$onMouseEnter,
-						function (_n2) {
+						function (_n6) {
 							return author$project$Main$EnterLine(i);
 						},
 						A2(
@@ -7805,7 +7901,8 @@ var author$project$Main$modelToCollage = function (model) {
 					A2(
 						elm$core$Maybe$withDefault,
 						avh4$elm_color$Color$red,
-						elm$core$List$head(model.colors)),
+						elm$core$List$head(
+							pickColors(model.colors))),
 					A2(
 						timjs$elm_collage$Collage$Text$size,
 						timjs$elm_collage$Collage$Text$huge,
@@ -7817,9 +7914,9 @@ var author$project$Main$modelToCollage = function (model) {
 		});
 	var lossCounter = A2(counter, 'losses', model.lossCount);
 	var moveCounter = function () {
-		var _n1 = model.remainingMoves;
-		if (_n1.$ === 'Just') {
-			var n = _n1.a;
+		var _n5 = model.remainingMoves;
+		if (_n5.$ === 'Just') {
+			var n = _n5.a;
 			return A2(counter, 'moves left', n);
 		} else {
 			return timjs$elm_collage$Collage$Layout$empty;
@@ -7842,13 +7939,41 @@ var author$project$Main$modelToCollage = function (model) {
 							moveCounter
 						])))
 			]));
+	var _n0 = function () {
+		var _n1 = model.wonTime;
+		if (_n1.$ === 'Nothing') {
+			return _Utils_Tuple2(model.sides, model.angles);
+		} else {
+			return A2(
+				elm$core$Debug$log,
+				'unzipped',
+				elm$core$List$unzip(
+					A2(
+						elm$core$Debug$log,
+						'sorted',
+						elm$core$List$sort(
+							A2(
+								elm$core$Debug$log,
+								'zipped',
+								A2(elm_community$list_extra$List$Extra$zip, model.sides, model.angles))))));
+		}
+	}();
+	var sides = _n0.a;
+	var angles = _n0.b;
+	var polygons = A5(
+		elm$core$List$map4,
+		polygonWithSpace,
+		A2(elm$core$List$range, 0, 4),
+		sides,
+		angles,
+		pickColors(model.colors));
 	var combined = function () {
-		var _n0 = model.moveTime;
-		if (_n0.$ === 'Just') {
-			var t = _n0.a;
+		var _n2 = model.moveTime;
+		if (_n2.$ === 'Just') {
+			var t = _n2.a;
 			return A2(
 				timjs$elm_collage$Collage$rotate,
-				elm$core$Basics$degrees(model.moveAngle),
+				elm$core$Basics$degrees((-model.direction) * model.moveAngle),
 				timjs$elm_collage$Collage$Layout$horizontal(
 					A2(
 						elm$core$List$intersperse,
@@ -7857,7 +7982,7 @@ var author$project$Main$modelToCollage = function (model) {
 							timjs$elm_collage$Collage$Layout$center(
 								A2(
 									timjs$elm_collage$Collage$rotate,
-									elm$core$Basics$degrees(-model.moveAngle),
+									elm$core$Basics$degrees(model.direction * model.moveAngle),
 									A2(timjs$elm_collage$Collage$Layout$spacer, 30, 1))),
 							A2(timjs$elm_collage$Collage$Layout$spacer, 30, 1)),
 						A2(
@@ -7869,7 +7994,7 @@ var author$project$Main$modelToCollage = function (model) {
 									timjs$elm_collage$Collage$Layout$center(
 										A2(
 											timjs$elm_collage$Collage$rotate,
-											elm$core$Basics$degrees(-model.moveAngle),
+											elm$core$Basics$degrees(model.direction * model.moveAngle),
 											group)),
 									A2(timjs$elm_collage$Collage$Layout$spacer, w, 1));
 							},
@@ -7882,8 +8007,40 @@ var author$project$Main$modelToCollage = function (model) {
 										A2(timjs$elm_collage$Collage$Layout$spacer, 30, 1)),
 									A2(author$project$Main$partition, model.linesClicked, polygons)))))));
 		} else {
-			return timjs$elm_collage$Collage$Layout$horizontal(
-				A2(elm_community$list_extra$List$Extra$interweave, polygons, lines));
+			var f = function (ps) {
+				return timjs$elm_collage$Collage$Layout$horizontal(
+					A2(elm_community$list_extra$List$Extra$interweave, ps, lines));
+			};
+			var comb = f(polygons);
+			var _n3 = model.loadingTime;
+			if (_n3.$ === 'Nothing') {
+				var _n4 = model.wonTime;
+				if (_n4.$ === 'Nothing') {
+					return model.loading ? A2(timjs$elm_collage$Collage$Layout$spacer, 0, 0) : comb;
+				} else {
+					var x = A2(elm$core$Debug$log, 'ali', 0);
+					return comb;
+				}
+			} else {
+				var lt = _n3.a;
+				var loadingTimes = _List_fromArray(
+					[150, 300, 450, 600, 750]);
+				var isShown = A2(
+					elm$core$List$map,
+					function (x) {
+						return _Utils_cmp(x, lt) < 1;
+					},
+					loadingTimes);
+				var loadingPolygons = A3(
+					elm$core$List$map2,
+					F2(
+						function (shown, p) {
+							return shown ? p : A2(timjs$elm_collage$Collage$Layout$spacer, 120, 0);
+						}),
+					isShown,
+					polygons);
+				return f(loadingPolygons);
+			}
 		}
 	}();
 	var game = A2(
