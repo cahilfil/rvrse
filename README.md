@@ -7,7 +7,7 @@ to specify a move, click the space between polygons, and then press <kbd>Space</
 
 p.s. to reach that goal you can only make certain number of moves, displayed as 'moves left'.
 
-## frequenly asked question
+## frequently asked question
 
 **q.** this sounds _very_ interesting to me (why?). where do i play it?
 
