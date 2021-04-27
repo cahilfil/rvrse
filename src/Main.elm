@@ -137,7 +137,7 @@ modelToCollage model =
                                 in
                                 impose
                                     (group
-                                        |> rotate (degrees -model.moveAngle)
+                                        |> rotate (degrees <| toFloat model.direction * model.moveAngle)
                                         |> center
                                     )
                                     (spacer w 1)
@@ -145,13 +145,13 @@ modelToCollage model =
                         |> List.intersperse
                             (impose
                                 (spacer 30 1
-                                    |> rotate (degrees -model.moveAngle)
+                                    |> rotate (degrees <| toFloat model.direction * model.moveAngle)
                                     |> center
                                 )
                                 (spacer 30 1)
                             )
                         |> horizontal
-                        |> rotate (degrees model.moveAngle)
+                        |> rotate (degrees <| toFloat -model.direction * model.moveAngle)
 
                 Nothing ->
                     List.Extra.interweave polygons lines |> horizontal
@@ -202,6 +202,8 @@ type alias Model a =
     , moveTime : Maybe Float
     , height : Maybe Float
     , width : Maybe Float
+    , direction : Int
+    , previousMoves : List (List Bool)
     }
 
 
@@ -238,6 +240,8 @@ init _ =
       , moveTime = Nothing
       , width = Nothing
       , height = Nothing
+      , direction = 1
+      , previousMoves = []
       }
     , Cmd.batch
         [ List.range 0 4 |> Random.List.shuffle |> Random.generate NewPermutation
@@ -544,16 +548,37 @@ update msg model =
                     reversePermutation model.linesClicked
 
                 newLinesClicked =
-                    [ False, False, False, False ]
+                    if model.direction == 1 then
+                        [ False, False, False, False ]
+
+                    else
+                        case model.previousMoves of
+                            [] ->
+                                [ False, False, False, False ]
+
+                            m :: ms ->
+                                List.reverse m
 
                 newRemainingMoves =
-                    Maybe.map (\x -> x - 1) model.remainingMoves
+                    Maybe.map (\x -> x - model.direction) model.remainingMoves
 
                 newSides =
                     movePermute model.sides
 
                 won =
                     newSides == [ 4, 5, 6, 7, 8 ]
+
+                newPreviousMoves =
+                    if model.direction == 1 then
+                        model.linesClicked :: model.previousMoves
+
+                    else
+                        case model.previousMoves of
+                            [] ->
+                                []
+
+                            m :: ms ->
+                                ms
 
                 newModel =
                     { model
@@ -562,6 +587,7 @@ update msg model =
                         , colors = movePermute model.colors
                         , linesClicked = newLinesClicked
                         , remainingMoves = newRemainingMoves
+                        , previousMoves = newPreviousMoves
                     }
             in
             if won then
@@ -573,7 +599,23 @@ update msg model =
                 )
 
             else if Maybe.withDefault -1 newRemainingMoves == 0 then
-                update NewGame { newModel | lossCount = model.lossCount + 1 }
+                ( { newModel
+                    | lossCount = model.lossCount + 1
+                    , direction = -1
+                    , moveTime = Just 0
+                    , linesClicked = List.reverse model.linesClicked
+                    , previousMoves = model.previousMoves
+                  }
+                , Cmd.none
+                )
+
+            else if model.direction == -1 then
+                case model.previousMoves of
+                    [] ->
+                        ( { newModel | direction = 1 }, Cmd.none )
+
+                    _ ->
+                        ( { newModel | moveTime = Just 0 }, Cmd.none )
 
             else
                 ( newModel, Cmd.none )
